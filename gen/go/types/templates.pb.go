@@ -1252,17 +1252,25 @@ type TemplateInfo struct {
 	DeprecationNotice string `protobuf:"bytes,7,opt,name=deprecation_notice,json=deprecationNotice,proto3" json:"deprecation_notice,omitempty"`
 	// Applicable standards (e.g., "NIST SP 800-38D", "RFC 8032").
 	Standards []string `protobuf:"bytes,8,rep,name=standards,proto3" json:"standards,omitempty"`
-	// Full CycloneDX algorithm properties for CBOM (Cryptography Bill of Materials) export.
-	// This field provides direct mapping to CycloneDX v1.7 algorithmProperties
-	// for seamless interoperability without modifying existing CaaS fields.
+	// Citius projection of CycloneDX v1.7 algorithmProperties for CBOM export.
+	// Most fields map directly. `name` and `oid` are Citius conveniences and are
+	// not members of CycloneDX algorithmProperties; a CycloneDX exporter MUST
+	// filter them (and other absent/default fields) from algorithmProperties.
 	Cyclonedx *CycloneDXAlgorithmProperties `protobuf:"bytes,9,opt,name=cyclonedx,proto3" json:"cyclonedx,omitempty"`
 	// Template-level security guarantees. Optional.
 	// Per-scope overrides in ScopedCapabilities.security_guarantees take precedence.
 	// Provides fallback guarantees for single-scope templates where per-scope
 	// overrides are unnecessary.
 	SecurityGuarantees *SecurityGuarantees `protobuf:"bytes,10,opt,name=security_guarantees,json=securityGuarantees,proto3" json:"security_guarantees,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Key-material compatibility family used when deciding whether an existing
+	// key can be retained under another template. This is intentionally distinct
+	// from cyclonedx.algorithm_family: standards-defined algorithm families such
+	// as RSASSA-PSS, RSASSA-PKCS1, and RSAES-OAEP can share generic RSA material.
+	// Empty means that retained-material compatibility is not declared and must
+	// fail closed. Implementations must also compare typed key-shape parameters.
+	KeyMaterialFamily string `protobuf:"bytes,11,opt,name=key_material_family,json=keyMaterialFamily,proto3" json:"key_material_family,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *TemplateInfo) Reset() {
@@ -1365,22 +1373,30 @@ func (x *TemplateInfo) GetSecurityGuarantees() *SecurityGuarantees {
 	return nil
 }
 
-// CycloneDXAlgorithmProperties provides full alignment with CycloneDX v1.7
+func (x *TemplateInfo) GetKeyMaterialFamily() string {
+	if x != nil {
+		return x.KeyMaterialFamily
+	}
+	return ""
+}
+
+// CycloneDXAlgorithmProperties is Citius's projection of CycloneDX v1.7
 // algorithmProperties for CBOM (Cryptography Bill of Materials) export.
 // Reference: https://cyclonedx.org/docs/1.7/json/#algorithmProperties
 //
-// This message enables direct serialization to CycloneDX format while
-// allowing CaaS to maintain its own internal field naming conventions.
+// It is not directly serializable as CycloneDX algorithmProperties: `name` and
+// `oid` are Citius convenience fields and MUST be removed by an exporter.
 type CycloneDXAlgorithmProperties struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// CycloneDX-compliant algorithm name (e.g., "AES-256-GCM", "ML-DSA-65").
-	// Follows naming patterns from https://cyclonedx.org/schema/cryptography-defs.json
+	// Citius display name following CycloneDX registry naming patterns where
+	// applicable. Not a CycloneDX algorithmProperties member; exporters omit it.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Cryptographic primitive type.
 	// Values from CycloneDX v1.7 cryptography-defs.json §primitiveEnum.
 	Primitive string `protobuf:"bytes,2,opt,name=primitive,proto3" json:"primitive,omitempty"`
-	// Algorithm family identifier (introduced in CycloneDX v1.7).
-	// Examples: AES, RSA, RSASSA-PSS, ECDSA, ECDH, ML-DSA, ML-KEM, Ed25519, X25519
+	// Exact CycloneDX v1.7 algorithmFamiliesEnum value. Empty when the Citius
+	// template has no corresponding family in that registry (for example Argon2
+	// or a Citius hybrid construction).
 	AlgorithmFamily string `protobuf:"bytes,3,opt,name=algorithm_family,json=algorithmFamily,proto3" json:"algorithm_family,omitempty"`
 	// Parameter set identifier (key size, security level parameter, etc.).
 	// Examples: "256" for AES-256, "65" for ML-DSA-65, "768" for ML-KEM-768
@@ -1397,12 +1413,11 @@ type CycloneDXAlgorithmProperties struct {
 	// Cryptographic functions the algorithm supports.
 	// Values from CycloneDX v1.7 cryptography-defs.json §cryptoFunctionEnum.
 	CryptoFunctions []string `protobuf:"bytes,8,rep,name=crypto_functions,json=cryptoFunctions,proto3" json:"crypto_functions,omitempty"`
-	// Classical security level in bits.
-	// 0 = not applicable; 160 = SHA-1/3TDEA equivalent; 224 = Ed448/SHA-224/P-224.
+	// Classical security level in bits. Exact source values are preserved; this
+	// is not restricted to a small set of buckets. 0 means absent/not applicable.
 	ClassicalSecurityLevel uint32 `protobuf:"varint,9,opt,name=classical_security_level,json=classicalSecurityLevel,proto3" json:"classical_security_level,omitempty"`
-	// NIST post-quantum security level (1–5). 0 = not applicable / none met.
-	// NIST defines exactly levels 1–5; there is no level 6.
-	// Reference: https://csrc.nist.gov/projects/post-quantum-cryptography
+	// CycloneDX NIST quantum security category. 0 = absent / none met.
+	// CycloneDX v1.7 permits values 0–6.
 	NistQuantumSecurityLevel uint32 `protobuf:"varint,10,opt,name=nist_quantum_security_level,json=nistQuantumSecurityLevel,proto3" json:"nist_quantum_security_level,omitempty"`
 	// Certification levels achieved.
 	// Values: none, fips140-1-l1 through fips140-3-l4, cc-eal1 through cc-eal7+
@@ -1413,8 +1428,8 @@ type CycloneDXAlgorithmProperties struct {
 	// Implementation platform.
 	// Values: generic, x86_32, x86_64, armv7-a, armv8-a, armv9-a, s390x, ppc64, ppc64le, other, unknown
 	ImplementationPlatform string `protobuf:"bytes,13,opt,name=implementation_platform,json=implementationPlatform,proto3" json:"implementation_platform,omitempty"`
-	// Algorithm Object Identifier (OID).
-	// Examples: "2.16.840.1.101.3.4.1.46" for AES-256-GCM
+	// Citius convenience copy of AlgorithmDetails.oid. Not a CycloneDX
+	// algorithmProperties member; exporters omit it.
 	Oid           string `protobuf:"bytes,14,opt,name=oid,proto3" json:"oid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1708,7 +1723,7 @@ const file_types_templates_proto_rawDesc = "" +
 	"operations\x18\x02 \x03(\x0e2\x1f.caas.crypto.v1.CryptoOperationB\b\xbaH\x05\x92\x01\x02\b\x01R\n" +
 	"operations\x12S\n" +
 	"\x13security_guarantees\x18\x03 \x01(\v2\".caas.crypto.v1.SecurityGuaranteesR\x12securityGuarantees:|\xbaHy\x1aw\n" +
-	"\x19no_unspecified_operations\x128operations must not contain CRYPTO_OPERATION_UNSPECIFIED\x1a this.operations.all(op, op != 0)\"\xff\a\n" +
+	"\x19no_unspecified_operations\x128operations must not contain CRYPTO_OPERATION_UNSPECIFIED\x1a this.operations.all(op, op != 0)\"\xda\b\n" +
 	"\fTemplateInfo\x12T\n" +
 	"\vtemplate_id\x18\x01 \x01(\tB3\xbaH0r.\x10\x01\x18\x80\x012'^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$R\n" +
 	"templateId\x12+\n" +
@@ -1721,9 +1736,10 @@ const file_types_templates_proto_rawDesc = "" +
 	"\tstandards\x18\b \x03(\tB\x11\xbaH\x0e\x92\x01\v\x102\"\ar\x05\x10\x01\x18\x80\x02R\tstandards\x12J\n" +
 	"\tcyclonedx\x18\t \x01(\v2,.caas.crypto.v1.CycloneDXAlgorithmPropertiesR\tcyclonedx\x12S\n" +
 	"\x13security_guarantees\x18\n" +
-	" \x01(\v2\".caas.crypto.v1.SecurityGuaranteesR\x12securityGuarantees:\xd5\x02\xbaH\xd1\x02\x1a\x9a\x01\n" +
+	" \x01(\v2\".caas.crypto.v1.SecurityGuaranteesR\x12securityGuarantees\x12Y\n" +
+	"\x13key_material_family\x18\v \x01(\tB)\xbaH&r$\x18@2 ^[A-Za-z0-9][A-Za-z0-9._+-]*$|^$R\x11keyMaterialFamily:\xd5\x02\xbaH\xd1\x02\x1a\x9a\x01\n" +
 	"\x1bdeprecation_notice_required\x12Hdeprecation_notice is required when status is TEMPLATE_STATUS_DEPRECATED\x1a1this.status != 3 || this.deprecation_notice != ''\x1a\xb1\x01\n" +
-	"\x0foid_consistency\x12<algorithm.oid and cyclonedx.oid must match when both are set\x1a`this.cyclonedx.oid == '' || this.algorithm.oid == '' || this.cyclonedx.oid == this.algorithm.oid\"\xe0\b\n" +
+	"\x0foid_consistency\x12<algorithm.oid and cyclonedx.oid must match when both are set\x1a`this.cyclonedx.oid == '' || this.algorithm.oid == '' || this.cyclonedx.oid == this.algorithm.oid\"\xc4\b\n" +
 	"\x1cCycloneDXAlgorithmProperties\x12\x1c\n" +
 	"\x04name\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\x04name\x12\xa8\x01\n" +
 	"\tprimitive\x18\x02 \x01(\tB\x89\x01\xbaH\x85\x01r\x82\x01R\x00R\x04drbgR\x03macR\fblock-cipherR\rstream-cipherR\tsignatureR\x04hashR\x03pkeR\x03xofR\x03kdfR\tkey-agreeR\x03kemR\x02aeR\bcombinerR\bkey-wrapR\x05otherR\aunknownR\tprimitive\x122\n" +
@@ -1732,10 +1748,10 @@ const file_types_templates_proto_rawDesc = "" +
 	"\x0eelliptic_curve\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x18@R\rellipticCurve\x12N\n" +
 	"\x04mode\x18\x06 \x01(\tB:\xbaH7r5R\x00R\x03cbcR\x03ecbR\x03ccmR\x03gcmR\x03cfbR\x03ofbR\x03ctrR\x05otherR\aunknownR\x04mode\x12T\n" +
 	"\apadding\x18\a \x01(\tB:\xbaH7r5R\x00R\x05pkcs5R\x05pkcs7R\bpkcs1v15R\x04oaepR\x03rawR\x05otherR\aunknownR\apadding\x12\xac\x01\n" +
-	"\x10crypto_functions\x18\b \x03(\tB\x80\x01\xbaH}\x92\x01z\x10\x14\"vrtR\bgenerateR\x06keygenR\aencryptR\adecryptR\x06digestR\x03tagR\tkeyderiveR\x04signR\x06verifyR\vencapsulateR\vdecapsulateR\x05otherR\aunknownR\x0fcryptoFunctions\x12T\n" +
-	"\x18classical_security_level\x18\t \x01(\rB\x1a\xbaH\x17*\x150\x000P0p0\x80\x010\xa0\x010\xc0\x010\xe0\x010\x80\x02R\x16classicalSecurityLevel\x12F\n" +
+	"\x10crypto_functions\x18\b \x03(\tB\x80\x01\xbaH}\x92\x01z\x10\x14\"vrtR\bgenerateR\x06keygenR\aencryptR\adecryptR\x06digestR\x03tagR\tkeyderiveR\x04signR\x06verifyR\vencapsulateR\vdecapsulateR\x05otherR\aunknownR\x0fcryptoFunctions\x128\n" +
+	"\x18classical_security_level\x18\t \x01(\rR\x16classicalSecurityLevel\x12F\n" +
 	"\x1bnist_quantum_security_level\x18\n" +
-	" \x01(\rB\a\xbaH\x04*\x02\x18\x05R\x18nistQuantumSecurityLevel\x12A\n" +
+	" \x01(\rB\a\xbaH\x04*\x02\x18\x06R\x18nistQuantumSecurityLevel\x12A\n" +
 	"\x13certification_level\x18\v \x03(\tB\x10\xbaH\r\x92\x01\n" +
 	"\x10\x14\"\x06r\x04\x10\x01\x18@R\x12certificationLevel\x12<\n" +
 	"\x15execution_environment\x18\f \x01(\tB\a\xbaH\x04r\x02\x18@R\x14executionEnvironment\x12@\n" +

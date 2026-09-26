@@ -9,6 +9,7 @@
 package messages
 
 import (
+	types "github.com/agile-crypto/citius-api-go/gen/go/types"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -666,7 +667,15 @@ type OperationMetadata struct {
 	//
 	// This field is NOT cryptographically authenticated — it is for audit/logging only.
 	// For application-level authenticated data, use AEAD's associated_data field.
-	UserContext   map[string]string `protobuf:"bytes,4,rep,name=user_context,json=userContext,proto3" json:"user_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UserContext map[string]string `protobuf:"bytes,4,rep,name=user_context,json=userContext,proto3" json:"user_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Hash that produced the digest of a DigestSign operation. Set by the
+	// service, never by the caller; unset for every other operation.
+	// DigestVerify takes the hash from here, and it is part of the audit trail.
+	// This is the one piece of algorithm identity carried here rather than
+	// derived from the template: a prehashed template accepts several hashes
+	// (TemplateInfo scope accepted_digest_hashes), so the template alone does
+	// not say which one produced a given signature.
+	DigestHash    types.HashAlgorithm `protobuf:"varint,5,opt,name=digest_hash,json=digestHash,proto3,enum=caas.crypto.v1.HashAlgorithm" json:"digest_hash,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -729,11 +738,18 @@ func (x *OperationMetadata) GetUserContext() map[string]string {
 	return nil
 }
 
+func (x *OperationMetadata) GetDigestHash() types.HashAlgorithm {
+	if x != nil {
+		return x.DigestHash
+	}
+	return types.HashAlgorithm(0)
+}
+
 var File_messages_metadata_proto protoreflect.FileDescriptor
 
 const file_messages_metadata_proto_rawDesc = "" +
 	"\n" +
-	"\x17messages/metadata.proto\x12\x0ecaas.crypto.v1\"L\n" +
+	"\x17messages/metadata.proto\x12\x0ecaas.crypto.v1\x1a\x1ctypes/algorithm_params.proto\"L\n" +
 	"\n" +
 	"AeadOutput\x12\x14\n" +
 	"\x05nonce\x18\x01 \x01(\fR\x05nonce\x12(\n" +
@@ -769,14 +785,16 @@ const file_messages_metadata_proto_rawDesc = "" +
 	"kdf_output\x18\x0f \x01(\v2\x19.caas.crypto.v1.KdfOutputH\x00R\tkdfOutput\x12C\n" +
 	"\rvendor_output\x18\x10 \x01(\v2\x1c.caas.crypto.v1.VendorOutputH\x00R\fvendorOutput\x12\x1a\n" +
 	"\bencoding\x18\x01 \x01(\tR\bencodingB\x12\n" +
-	"\x10algorithm_output\"\xb5\x02\n" +
+	"\x10algorithm_output\"\xf5\x02\n" +
 	"\x11OperationMetadata\x12\x1f\n" +
 	"\vkey_version\x18\x01 \x01(\rR\n" +
 	"keyVersion\x12G\n" +
 	"\x0fprovider_output\x18\x02 \x01(\v2\x1e.caas.crypto.v1.ProviderOutputR\x0eproviderOutput\x12\x1f\n" +
 	"\vapi_version\x18\x03 \x01(\tR\n" +
 	"apiVersion\x12U\n" +
-	"\fuser_context\x18\x04 \x03(\v22.caas.crypto.v1.OperationMetadata.UserContextEntryR\vuserContext\x1a>\n" +
+	"\fuser_context\x18\x04 \x03(\v22.caas.crypto.v1.OperationMetadata.UserContextEntryR\vuserContext\x12>\n" +
+	"\vdigest_hash\x18\x05 \x01(\x0e2\x1d.caas.crypto.v1.HashAlgorithmR\n" +
+	"digestHash\x1a>\n" +
 	"\x10UserContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B@Z>github.com/agile-crypto/citius-api-go/gen/go/messages;messagesb\x06proto3"
@@ -806,6 +824,7 @@ var file_messages_metadata_proto_goTypes = []any{
 	(*OperationMetadata)(nil),  // 8: caas.crypto.v1.OperationMetadata
 	nil,                        // 9: caas.crypto.v1.VendorOutput.ParametersEntry
 	nil,                        // 10: caas.crypto.v1.OperationMetadata.UserContextEntry
+	(types.HashAlgorithm)(0),   // 11: caas.crypto.v1.HashAlgorithm
 }
 var file_messages_metadata_proto_depIdxs = []int32{
 	9,  // 0: caas.crypto.v1.VendorOutput.parameters:type_name -> caas.crypto.v1.VendorOutput.ParametersEntry
@@ -818,11 +837,12 @@ var file_messages_metadata_proto_depIdxs = []int32{
 	6,  // 7: caas.crypto.v1.ProviderOutput.vendor_output:type_name -> caas.crypto.v1.VendorOutput
 	7,  // 8: caas.crypto.v1.OperationMetadata.provider_output:type_name -> caas.crypto.v1.ProviderOutput
 	10, // 9: caas.crypto.v1.OperationMetadata.user_context:type_name -> caas.crypto.v1.OperationMetadata.UserContextEntry
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	11, // 10: caas.crypto.v1.OperationMetadata.digest_hash:type_name -> caas.crypto.v1.HashAlgorithm
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_messages_metadata_proto_init() }

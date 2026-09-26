@@ -1531,6 +1531,22 @@ type SignatureScopeSpec struct {
 	// Deterministic: Same input always produces same signature.
 	// Relevant for: Reproducibility, testing, side-channel resistance.
 	Deterministic *bool `protobuf:"varint,4,opt,name=deterministic,proto3,oneof" json:"deterministic,omitempty"`
+	// Digest hashes accepted by a PREHASHED or PREHASHED_WITH_CONTEXT scope, in
+	// order of preference: the first entry is the preferred hash.
+	//
+	//	Template: hashes the template can sign without weakening its advertised
+	//	          security. Required (non-empty) on every prehashed scope; the
+	//	          catalog validator and the service's catalog loader enforce it.
+	//	Request:  a requirement. The selected template must accept every entry.
+	//	          Empty means no requirement.
+	//	Key:      hashes this key version accepts. Always non-empty for a
+	//	          prehashed version: CreateKey and TransformKey store the
+	//	          request's list, or the template's list when it is empty.
+	//
+	// Applications hash with accepted_digest_hashes[0] of the key's scope spec
+	// (ReadKey), so the hash can change without code changes.
+	// Must be empty for STANDARD and WITH_CONTEXT scopes.
+	AcceptedDigestHashes []HashAlgorithm `protobuf:"varint,5,rep,packed,name=accepted_digest_hashes,json=acceptedDigestHashes,proto3,enum=caas.crypto.v1.HashAlgorithm" json:"accepted_digest_hashes,omitempty"`
 	// Extensibility: Additional properties not covered by typed fields.
 	// Use for vendor-specific, compliance, or future requirements.
 	AdditionalProperties map[string]string `protobuf:"bytes,15,rep,name=additional_properties,json=additionalProperties,proto3" json:"additional_properties,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1594,6 +1610,13 @@ func (x *SignatureScopeSpec) GetDeterministic() bool {
 		return *x.Deterministic
 	}
 	return false
+}
+
+func (x *SignatureScopeSpec) GetAcceptedDigestHashes() []HashAlgorithm {
+	if x != nil {
+		return x.AcceptedDigestHashes
+	}
+	return nil
 }
 
 func (x *SignatureScopeSpec) GetAdditionalProperties() map[string]string {
@@ -3055,7 +3078,7 @@ var File_types_common_proto protoreflect.FileDescriptor
 
 const file_types_common_proto_rawDesc = "" +
 	"\n" +
-	"\x12types/common.proto\x12\x0ecaas.crypto.v1\x1a\x1bbuf/validate/validate.proto\"\xd8\x02\n" +
+	"\x12types/common.proto\x12\x0ecaas.crypto.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1ctypes/algorithm_params.proto\"\xd8\x02\n" +
 	"\x1bUniversalSecurityProperties\x124\n" +
 	"\x16security_strength_bits\x18\x01 \x01(\rR\x14securityStrengthBits\x12Q\n" +
 	"\x13nist_security_level\x18\x02 \x01(\x0e2!.caas.crypto.v1.NistSecurityLevelR\x11nistSecurityLevel\x12&\n" +
@@ -3064,17 +3087,20 @@ const file_types_common_proto_rawDesc = "" +
 	"nistStatus\x12(\n" +
 	"\rfips_approved\x18\x05 \x01(\bH\x01R\ffipsApproved\x88\x01\x01B\x0f\n" +
 	"\r_quantum_safeB\x10\n" +
-	"\x0e_fips_approved\"\xd4\x03\n" +
+	"\x0e_fips_approved\"\x85\x06\n" +
 	"\x12SignatureScopeSpec\x12@\n" +
 	"\x05scope\x18\x01 \x01(\x0e2\x1e.caas.crypto.v1.SignatureScopeB\n" +
 	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05scope\x12G\n" +
 	"\bsecurity\x18\x02 \x01(\v2+.caas.crypto.v1.UniversalSecurityPropertiesR\bsecurity\x12(\n" +
 	"\rnon_malleable\x18\x03 \x01(\bH\x00R\fnonMalleable\x88\x01\x01\x12)\n" +
-	"\rdeterministic\x18\x04 \x01(\bH\x01R\rdeterministic\x88\x01\x01\x12q\n" +
+	"\rdeterministic\x18\x04 \x01(\bH\x01R\rdeterministic\x88\x01\x01\x12i\n" +
+	"\x16accepted_digest_hashes\x18\x05 \x03(\x0e2\x1d.caas.crypto.v1.HashAlgorithmB\x14\xbaH\x11\x92\x01\x0e\x18\x01\"\n" +
+	"\x82\x01\a\x10\x01 \x00 \xc8\x01R\x14acceptedDigestHashes\x12q\n" +
 	"\x15additional_properties\x18\x0f \x03(\v2<.caas.crypto.v1.SignatureScopeSpec.AdditionalPropertiesEntryR\x14additionalProperties\x1aG\n" +
 	"\x19AdditionalPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xc3\x01\xbaH\xbf\x01\x1a\xbc\x01\n" +
+	"%accepted_digest_hashes_prehashed_only\x12Daccepted_digest_hashes is only allowed on prehashed signature scopes\x1aMthis.accepted_digest_hashes.size() == 0 || this.scope == 3 || this.scope == 4B\x10\n" +
 	"\x0e_non_malleableB\x10\n" +
 	"\x0e_deterministic\"\xa2\x03\n" +
 	"\rAeadScopeSpec\x12;\n" +
@@ -3474,67 +3500,69 @@ var file_types_common_proto_goTypes = []any{
 	nil,                                   // 48: caas.crypto.v1.GenericSecretScopeSpec.AdditionalPropertiesEntry
 	nil,                                   // 49: caas.crypto.v1.AsymmetricEncryptionScopeSpec.AdditionalPropertiesEntry
 	nil,                                   // 50: caas.crypto.v1.SecurityGuarantees.AdditionalPropertiesEntry
+	(HashAlgorithm)(0),                    // 51: caas.crypto.v1.HashAlgorithm
 }
 var file_types_common_proto_depIdxs = []int32{
 	14, // 0: caas.crypto.v1.UniversalSecurityProperties.nist_security_level:type_name -> caas.crypto.v1.NistSecurityLevel
 	15, // 1: caas.crypto.v1.UniversalSecurityProperties.nist_status:type_name -> caas.crypto.v1.NistStatus
 	0,  // 2: caas.crypto.v1.SignatureScopeSpec.scope:type_name -> caas.crypto.v1.SignatureScope
 	20, // 3: caas.crypto.v1.SignatureScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	38, // 4: caas.crypto.v1.SignatureScopeSpec.additional_properties:type_name -> caas.crypto.v1.SignatureScopeSpec.AdditionalPropertiesEntry
-	1,  // 5: caas.crypto.v1.AeadScopeSpec.scope:type_name -> caas.crypto.v1.AeadScope
-	20, // 6: caas.crypto.v1.AeadScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	39, // 7: caas.crypto.v1.AeadScopeSpec.additional_properties:type_name -> caas.crypto.v1.AeadScopeSpec.AdditionalPropertiesEntry
-	2,  // 8: caas.crypto.v1.MacScopeSpec.scope:type_name -> caas.crypto.v1.MacScope
-	20, // 9: caas.crypto.v1.MacScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	40, // 10: caas.crypto.v1.MacScopeSpec.additional_properties:type_name -> caas.crypto.v1.MacScopeSpec.AdditionalPropertiesEntry
-	3,  // 11: caas.crypto.v1.KemScopeSpec.scope:type_name -> caas.crypto.v1.KemScope
-	20, // 12: caas.crypto.v1.KemScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	41, // 13: caas.crypto.v1.KemScopeSpec.additional_properties:type_name -> caas.crypto.v1.KemScopeSpec.AdditionalPropertiesEntry
-	4,  // 14: caas.crypto.v1.KeyAgreementScopeSpec.scope:type_name -> caas.crypto.v1.KeyAgreementScope
-	20, // 15: caas.crypto.v1.KeyAgreementScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	42, // 16: caas.crypto.v1.KeyAgreementScopeSpec.additional_properties:type_name -> caas.crypto.v1.KeyAgreementScopeSpec.AdditionalPropertiesEntry
-	5,  // 17: caas.crypto.v1.KdfScopeSpec.scope:type_name -> caas.crypto.v1.KdfScope
-	20, // 18: caas.crypto.v1.KdfScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	43, // 19: caas.crypto.v1.KdfScopeSpec.additional_properties:type_name -> caas.crypto.v1.KdfScopeSpec.AdditionalPropertiesEntry
-	6,  // 20: caas.crypto.v1.HashScopeSpec.scope:type_name -> caas.crypto.v1.HashScope
-	20, // 21: caas.crypto.v1.HashScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	44, // 22: caas.crypto.v1.HashScopeSpec.additional_properties:type_name -> caas.crypto.v1.HashScopeSpec.AdditionalPropertiesEntry
-	7,  // 23: caas.crypto.v1.KeyWrappingScopeSpec.scope:type_name -> caas.crypto.v1.KeyWrappingScope
-	20, // 24: caas.crypto.v1.KeyWrappingScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	45, // 25: caas.crypto.v1.KeyWrappingScopeSpec.additional_properties:type_name -> caas.crypto.v1.KeyWrappingScopeSpec.AdditionalPropertiesEntry
-	8,  // 26: caas.crypto.v1.SymmetricCipherScopeSpec.scope:type_name -> caas.crypto.v1.SymmetricCipherScope
-	20, // 27: caas.crypto.v1.SymmetricCipherScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	46, // 28: caas.crypto.v1.SymmetricCipherScopeSpec.additional_properties:type_name -> caas.crypto.v1.SymmetricCipherScopeSpec.AdditionalPropertiesEntry
-	9,  // 29: caas.crypto.v1.DiskEncryptionScopeSpec.scope:type_name -> caas.crypto.v1.DiskEncryptionScope
-	20, // 30: caas.crypto.v1.DiskEncryptionScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	47, // 31: caas.crypto.v1.DiskEncryptionScopeSpec.additional_properties:type_name -> caas.crypto.v1.DiskEncryptionScopeSpec.AdditionalPropertiesEntry
-	10, // 32: caas.crypto.v1.GenericSecretScopeSpec.scope:type_name -> caas.crypto.v1.GenericSecretScope
-	20, // 33: caas.crypto.v1.GenericSecretScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	48, // 34: caas.crypto.v1.GenericSecretScopeSpec.additional_properties:type_name -> caas.crypto.v1.GenericSecretScopeSpec.AdditionalPropertiesEntry
-	11, // 35: caas.crypto.v1.AsymmetricEncryptionScopeSpec.scope:type_name -> caas.crypto.v1.AsymmetricEncryptionScope
-	20, // 36: caas.crypto.v1.AsymmetricEncryptionScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
-	49, // 37: caas.crypto.v1.AsymmetricEncryptionScopeSpec.additional_properties:type_name -> caas.crypto.v1.AsymmetricEncryptionScopeSpec.AdditionalPropertiesEntry
-	21, // 38: caas.crypto.v1.ScopeSpecification.signature:type_name -> caas.crypto.v1.SignatureScopeSpec
-	22, // 39: caas.crypto.v1.ScopeSpecification.aead:type_name -> caas.crypto.v1.AeadScopeSpec
-	23, // 40: caas.crypto.v1.ScopeSpecification.mac:type_name -> caas.crypto.v1.MacScopeSpec
-	24, // 41: caas.crypto.v1.ScopeSpecification.kem:type_name -> caas.crypto.v1.KemScopeSpec
-	25, // 42: caas.crypto.v1.ScopeSpecification.key_agreement:type_name -> caas.crypto.v1.KeyAgreementScopeSpec
-	26, // 43: caas.crypto.v1.ScopeSpecification.kdf:type_name -> caas.crypto.v1.KdfScopeSpec
-	27, // 44: caas.crypto.v1.ScopeSpecification.hash:type_name -> caas.crypto.v1.HashScopeSpec
-	28, // 45: caas.crypto.v1.ScopeSpecification.key_wrapping:type_name -> caas.crypto.v1.KeyWrappingScopeSpec
-	29, // 46: caas.crypto.v1.ScopeSpecification.symmetric_cipher:type_name -> caas.crypto.v1.SymmetricCipherScopeSpec
-	31, // 47: caas.crypto.v1.ScopeSpecification.generic_secret:type_name -> caas.crypto.v1.GenericSecretScopeSpec
-	30, // 48: caas.crypto.v1.ScopeSpecification.disk_encryption:type_name -> caas.crypto.v1.DiskEncryptionScopeSpec
-	32, // 49: caas.crypto.v1.ScopeSpecification.asymmetric_encryption:type_name -> caas.crypto.v1.AsymmetricEncryptionScopeSpec
-	34, // 50: caas.crypto.v1.SecurityGuarantees.formal:type_name -> caas.crypto.v1.FormalSecurityNotions
-	35, // 51: caas.crypto.v1.SecurityGuarantees.practical:type_name -> caas.crypto.v1.PracticalSecurityOutcomes
-	36, // 52: caas.crypto.v1.SecurityGuarantees.bounds:type_name -> caas.crypto.v1.OperationalBounds
-	50, // 53: caas.crypto.v1.SecurityGuarantees.additional_properties:type_name -> caas.crypto.v1.SecurityGuarantees.AdditionalPropertiesEntry
-	54, // [54:54] is the sub-list for method output_type
-	54, // [54:54] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	51, // 4: caas.crypto.v1.SignatureScopeSpec.accepted_digest_hashes:type_name -> caas.crypto.v1.HashAlgorithm
+	38, // 5: caas.crypto.v1.SignatureScopeSpec.additional_properties:type_name -> caas.crypto.v1.SignatureScopeSpec.AdditionalPropertiesEntry
+	1,  // 6: caas.crypto.v1.AeadScopeSpec.scope:type_name -> caas.crypto.v1.AeadScope
+	20, // 7: caas.crypto.v1.AeadScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	39, // 8: caas.crypto.v1.AeadScopeSpec.additional_properties:type_name -> caas.crypto.v1.AeadScopeSpec.AdditionalPropertiesEntry
+	2,  // 9: caas.crypto.v1.MacScopeSpec.scope:type_name -> caas.crypto.v1.MacScope
+	20, // 10: caas.crypto.v1.MacScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	40, // 11: caas.crypto.v1.MacScopeSpec.additional_properties:type_name -> caas.crypto.v1.MacScopeSpec.AdditionalPropertiesEntry
+	3,  // 12: caas.crypto.v1.KemScopeSpec.scope:type_name -> caas.crypto.v1.KemScope
+	20, // 13: caas.crypto.v1.KemScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	41, // 14: caas.crypto.v1.KemScopeSpec.additional_properties:type_name -> caas.crypto.v1.KemScopeSpec.AdditionalPropertiesEntry
+	4,  // 15: caas.crypto.v1.KeyAgreementScopeSpec.scope:type_name -> caas.crypto.v1.KeyAgreementScope
+	20, // 16: caas.crypto.v1.KeyAgreementScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	42, // 17: caas.crypto.v1.KeyAgreementScopeSpec.additional_properties:type_name -> caas.crypto.v1.KeyAgreementScopeSpec.AdditionalPropertiesEntry
+	5,  // 18: caas.crypto.v1.KdfScopeSpec.scope:type_name -> caas.crypto.v1.KdfScope
+	20, // 19: caas.crypto.v1.KdfScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	43, // 20: caas.crypto.v1.KdfScopeSpec.additional_properties:type_name -> caas.crypto.v1.KdfScopeSpec.AdditionalPropertiesEntry
+	6,  // 21: caas.crypto.v1.HashScopeSpec.scope:type_name -> caas.crypto.v1.HashScope
+	20, // 22: caas.crypto.v1.HashScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	44, // 23: caas.crypto.v1.HashScopeSpec.additional_properties:type_name -> caas.crypto.v1.HashScopeSpec.AdditionalPropertiesEntry
+	7,  // 24: caas.crypto.v1.KeyWrappingScopeSpec.scope:type_name -> caas.crypto.v1.KeyWrappingScope
+	20, // 25: caas.crypto.v1.KeyWrappingScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	45, // 26: caas.crypto.v1.KeyWrappingScopeSpec.additional_properties:type_name -> caas.crypto.v1.KeyWrappingScopeSpec.AdditionalPropertiesEntry
+	8,  // 27: caas.crypto.v1.SymmetricCipherScopeSpec.scope:type_name -> caas.crypto.v1.SymmetricCipherScope
+	20, // 28: caas.crypto.v1.SymmetricCipherScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	46, // 29: caas.crypto.v1.SymmetricCipherScopeSpec.additional_properties:type_name -> caas.crypto.v1.SymmetricCipherScopeSpec.AdditionalPropertiesEntry
+	9,  // 30: caas.crypto.v1.DiskEncryptionScopeSpec.scope:type_name -> caas.crypto.v1.DiskEncryptionScope
+	20, // 31: caas.crypto.v1.DiskEncryptionScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	47, // 32: caas.crypto.v1.DiskEncryptionScopeSpec.additional_properties:type_name -> caas.crypto.v1.DiskEncryptionScopeSpec.AdditionalPropertiesEntry
+	10, // 33: caas.crypto.v1.GenericSecretScopeSpec.scope:type_name -> caas.crypto.v1.GenericSecretScope
+	20, // 34: caas.crypto.v1.GenericSecretScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	48, // 35: caas.crypto.v1.GenericSecretScopeSpec.additional_properties:type_name -> caas.crypto.v1.GenericSecretScopeSpec.AdditionalPropertiesEntry
+	11, // 36: caas.crypto.v1.AsymmetricEncryptionScopeSpec.scope:type_name -> caas.crypto.v1.AsymmetricEncryptionScope
+	20, // 37: caas.crypto.v1.AsymmetricEncryptionScopeSpec.security:type_name -> caas.crypto.v1.UniversalSecurityProperties
+	49, // 38: caas.crypto.v1.AsymmetricEncryptionScopeSpec.additional_properties:type_name -> caas.crypto.v1.AsymmetricEncryptionScopeSpec.AdditionalPropertiesEntry
+	21, // 39: caas.crypto.v1.ScopeSpecification.signature:type_name -> caas.crypto.v1.SignatureScopeSpec
+	22, // 40: caas.crypto.v1.ScopeSpecification.aead:type_name -> caas.crypto.v1.AeadScopeSpec
+	23, // 41: caas.crypto.v1.ScopeSpecification.mac:type_name -> caas.crypto.v1.MacScopeSpec
+	24, // 42: caas.crypto.v1.ScopeSpecification.kem:type_name -> caas.crypto.v1.KemScopeSpec
+	25, // 43: caas.crypto.v1.ScopeSpecification.key_agreement:type_name -> caas.crypto.v1.KeyAgreementScopeSpec
+	26, // 44: caas.crypto.v1.ScopeSpecification.kdf:type_name -> caas.crypto.v1.KdfScopeSpec
+	27, // 45: caas.crypto.v1.ScopeSpecification.hash:type_name -> caas.crypto.v1.HashScopeSpec
+	28, // 46: caas.crypto.v1.ScopeSpecification.key_wrapping:type_name -> caas.crypto.v1.KeyWrappingScopeSpec
+	29, // 47: caas.crypto.v1.ScopeSpecification.symmetric_cipher:type_name -> caas.crypto.v1.SymmetricCipherScopeSpec
+	31, // 48: caas.crypto.v1.ScopeSpecification.generic_secret:type_name -> caas.crypto.v1.GenericSecretScopeSpec
+	30, // 49: caas.crypto.v1.ScopeSpecification.disk_encryption:type_name -> caas.crypto.v1.DiskEncryptionScopeSpec
+	32, // 50: caas.crypto.v1.ScopeSpecification.asymmetric_encryption:type_name -> caas.crypto.v1.AsymmetricEncryptionScopeSpec
+	34, // 51: caas.crypto.v1.SecurityGuarantees.formal:type_name -> caas.crypto.v1.FormalSecurityNotions
+	35, // 52: caas.crypto.v1.SecurityGuarantees.practical:type_name -> caas.crypto.v1.PracticalSecurityOutcomes
+	36, // 53: caas.crypto.v1.SecurityGuarantees.bounds:type_name -> caas.crypto.v1.OperationalBounds
+	50, // 54: caas.crypto.v1.SecurityGuarantees.additional_properties:type_name -> caas.crypto.v1.SecurityGuarantees.AdditionalPropertiesEntry
+	55, // [55:55] is the sub-list for method output_type
+	55, // [55:55] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_types_common_proto_init() }
@@ -3542,6 +3570,7 @@ func file_types_common_proto_init() {
 	if File_types_common_proto != nil {
 		return
 	}
+	file_types_algorithm_params_proto_init()
 	file_types_common_proto_msgTypes[0].OneofWrappers = []any{}
 	file_types_common_proto_msgTypes[1].OneofWrappers = []any{}
 	file_types_common_proto_msgTypes[2].OneofWrappers = []any{}

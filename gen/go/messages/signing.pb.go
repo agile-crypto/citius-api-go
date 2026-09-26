@@ -410,26 +410,17 @@ type DigestSignRequest struct {
 	//	*DigestSignRequest_DomainContext
 	//	*DigestSignRequest_VendorContext
 	ScopeParams isDigestSignRequest_ScopeParams `protobuf_oneof:"scope_params"`
-	// Hash algorithm used to compute the digest - REQUIRED.
-	// Declares which hash algorithm was used to produce the digest bytes.
+	// Hash algorithm that produced the digest - REQUIRED.
 	//
-	// Security purpose:
-	//  1. Digest size validation (prevents policy bypass - SHA-1 digest can't claim to be SHA-256)
-	//  2. Policy enforcement (reject weak hash algorithms like SHA-1, MD5)
-	//  3. Audit trail (returned in OperationMetadata.used_hash_algorithm)
-	//
-	// The service validates that len(digest) matches the output size of this algorithm.
-	// Example: SHA-256 → 32 bytes, SHA-384 → 48 bytes, SHA-512 → 64 bytes
+	// The key version accepts only the hashes in its scope spec's
+	// accepted_digest_hashes (see ReadKey; the first entry is the preferred
+	// hash). Any other hash is rejected with INVALID_ARGUMENT. The service also
+	// checks that len(digest) matches this hash's output size, and records the
+	// hash in the response's OperationMetadata.digest_hash, which DigestVerify
+	// uses.
 	//
 	// PKCS#11 Reference: CKM_ECDSA (prehashed) vs CKM_ECDSA_SHA256 (hash-then-sign)
 	HashAlgorithm types.HashAlgorithm `protobuf:"varint,6,opt,name=hash_algorithm,json=hashAlgorithm,proto3,enum=caas.crypto.v1.HashAlgorithm" json:"hash_algorithm,omitempty"`
-	// Optional: OID of the hash algorithm for extensibility.
-	// Use when hash_algorithm is HASH_ALGORITHM_OTHER or for explicit OID-based validation.
-	// Example: "2.16.840.1.101.3.4.2.1" for SHA-256, "2.16.840.1.101.3.4.2.8" for SHA3-256
-	//
-	// When both are specified, service validates they match.
-	// When only OID is specified with HASH_ALGORITHM_OTHER, service uses OID for validation.
-	HashAlgorithmOid string `protobuf:"bytes,7,opt,name=hash_algorithm_oid,json=hashAlgorithmOid,proto3" json:"hash_algorithm_oid,omitempty"`
 	// Optional: User-provided context for audit trail enrichment.
 	UserContext   map[string]string `protobuf:"bytes,15,rep,name=user_context,json=userContext,proto3" json:"user_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
@@ -521,13 +512,6 @@ func (x *DigestSignRequest) GetHashAlgorithm() types.HashAlgorithm {
 	return types.HashAlgorithm(0)
 }
 
-func (x *DigestSignRequest) GetHashAlgorithmOid() string {
-	if x != nil {
-		return x.HashAlgorithmOid
-	}
-	return ""
-}
-
 func (x *DigestSignRequest) GetUserContext() map[string]string {
 	if x != nil {
 		return x.UserContext
@@ -614,8 +598,10 @@ type DigestVerifyRequest struct {
 	KeyName   string                 `protobuf:"bytes,1,opt,name=key_name,json=keyName,proto3" json:"key_name,omitempty"`
 	Digest    []byte                 `protobuf:"bytes,2,opt,name=digest,proto3" json:"digest,omitempty"`
 	Signature []byte                 `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
-	// Operation metadata from digest sign response.
-	// Contains key_version to ensure correct key is used for verification.
+	// Operation metadata from the DigestSign response. Required: key_version
+	// selects the key version, and digest_hash is the hash that produced the
+	// digest. There is no separate hash argument, so the verifier cannot
+	// disagree with what was signed.
 	Metadata *OperationMetadata `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Must match scope used during signing.
 	//
@@ -625,19 +611,6 @@ type DigestVerifyRequest struct {
 	//	*DigestVerifyRequest_DomainContext
 	//	*DigestVerifyRequest_VendorContext
 	ScopeParams isDigestVerifyRequest_ScopeParams `protobuf_oneof:"scope_params"`
-	// Hash algorithm used to compute the digest - REQUIRED.
-	// Must match the hash_algorithm from the corresponding DigestSignRequest.
-	//
-	// Security purpose:
-	//  1. Digest size validation (SHA-1 digest can't claim to be SHA-256)
-	//  2. Policy enforcement (reject verification with weak hash algorithms)
-	//  3. Audit trail (record which hash was claimed during verification)
-	//
-	// The service validates that len(digest) matches the output size of this algorithm.
-	HashAlgorithm types.HashAlgorithm `protobuf:"varint,8,opt,name=hash_algorithm,json=hashAlgorithm,proto3,enum=caas.crypto.v1.HashAlgorithm" json:"hash_algorithm,omitempty"`
-	// Optional: OID of the hash algorithm for extensibility.
-	// Same semantics as DigestSignRequest.hash_algorithm_oid.
-	HashAlgorithmOid string `protobuf:"bytes,9,opt,name=hash_algorithm_oid,json=hashAlgorithmOid,proto3" json:"hash_algorithm_oid,omitempty"`
 	// Optional: User-provided context for audit trail enrichment.
 	UserContext   map[string]string `protobuf:"bytes,15,rep,name=user_context,json=userContext,proto3" json:"user_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
@@ -734,20 +707,6 @@ func (x *DigestVerifyRequest) GetVendorContext() *types.VendorSignatureContext {
 		}
 	}
 	return nil
-}
-
-func (x *DigestVerifyRequest) GetHashAlgorithm() types.HashAlgorithm {
-	if x != nil {
-		return x.HashAlgorithm
-	}
-	return types.HashAlgorithm(0)
-}
-
-func (x *DigestVerifyRequest) GetHashAlgorithmOid() string {
-	if x != nil {
-		return x.HashAlgorithmOid
-	}
-	return ""
 }
 
 func (x *DigestVerifyRequest) GetUserContext() map[string]string {
@@ -2847,7 +2806,7 @@ const file_messages_signing_proto_rawDesc = "" +
 	"\fscope_params\x12\x05\xbaH\x02\b\x01\"e\n" +
 	"\x0eVerifyResponse\x12\x14\n" +
 	"\x05valid\x18\x01 \x01(\bR\x05valid\x12=\n" +
-	"\bmetadata\x18\x02 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\"\xdd\x04\n" +
+	"\bmetadata\x18\x02 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\"\xcc\x04\n" +
 	"\x11DigestSignRequest\x12%\n" +
 	"\bkey_name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\akeyName\x12\x16\n" +
@@ -2855,36 +2814,33 @@ const file_messages_signing_proto_rawDesc = "" +
 	"\n" +
 	"no_context\x18\x03 \x01(\v2\x18.caas.crypto.v1.NoParamsH\x00R\tnoContext\x12O\n" +
 	"\x0edomain_context\x18\x04 \x01(\v2&.caas.crypto.v1.SignatureDomainContextH\x00R\rdomainContext\x12O\n" +
-	"\x0evendor_context\x18\x05 \x01(\v2&.caas.crypto.v1.VendorSignatureContextH\x00R\rvendorContext\x12P\n" +
-	"\x0ehash_algorithm\x18\x06 \x01(\x0e2\x1d.caas.crypto.v1.HashAlgorithmB\n" +
-	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\rhashAlgorithm\x12,\n" +
-	"\x12hash_algorithm_oid\x18\a \x01(\tR\x10hashAlgorithmOid\x12U\n" +
+	"\x0evendor_context\x18\x05 \x01(\v2&.caas.crypto.v1.VendorSignatureContextH\x00R\rvendorContext\x12S\n" +
+	"\x0ehash_algorithm\x18\x06 \x01(\x0e2\x1d.caas.crypto.v1.HashAlgorithmB\r\xbaH\n" +
+	"\x82\x01\a\x10\x01 \x00 \xc8\x01R\rhashAlgorithm\x12U\n" +
 	"\fuser_context\x18\x0f \x03(\v22.caas.crypto.v1.DigestSignRequest.UserContextEntryR\vuserContext\x1a>\n" +
 	"\x10UserContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
-	"\fscope_params\x12\x05\xbaH\x02\b\x01\"q\n" +
+	"\fscope_params\x12\x05\xbaH\x02\b\x01J\x04\b\a\x10\bR\x12hash_algorithm_oid\"q\n" +
 	"\x12DigestSignResponse\x12\x1c\n" +
 	"\tsignature\x18\x01 \x01(\fR\tsignature\x12=\n" +
-	"\bmetadata\x18\x02 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\"\xbe\x05\n" +
+	"\bmetadata\x18\x02 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\"\xf6\x04\n" +
 	"\x13DigestVerifyRequest\x12%\n" +
 	"\bkey_name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\akeyName\x12\x16\n" +
 	"\x06digest\x18\x02 \x01(\fR\x06digest\x12\x1c\n" +
-	"\tsignature\x18\x03 \x01(\fR\tsignature\x12=\n" +
-	"\bmetadata\x18\x04 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\x129\n" +
+	"\tsignature\x18\x03 \x01(\fR\tsignature\x12E\n" +
+	"\bmetadata\x18\x04 \x01(\v2!.caas.crypto.v1.OperationMetadataB\x06\xbaH\x03\xc8\x01\x01R\bmetadata\x129\n" +
 	"\n" +
 	"no_context\x18\x05 \x01(\v2\x18.caas.crypto.v1.NoParamsH\x00R\tnoContext\x12O\n" +
 	"\x0edomain_context\x18\x06 \x01(\v2&.caas.crypto.v1.SignatureDomainContextH\x00R\rdomainContext\x12O\n" +
-	"\x0evendor_context\x18\a \x01(\v2&.caas.crypto.v1.VendorSignatureContextH\x00R\rvendorContext\x12P\n" +
-	"\x0ehash_algorithm\x18\b \x01(\x0e2\x1d.caas.crypto.v1.HashAlgorithmB\n" +
-	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\rhashAlgorithm\x12,\n" +
-	"\x12hash_algorithm_oid\x18\t \x01(\tR\x10hashAlgorithmOid\x12W\n" +
+	"\x0evendor_context\x18\a \x01(\v2&.caas.crypto.v1.VendorSignatureContextH\x00R\rvendorContext\x12W\n" +
 	"\fuser_context\x18\x0f \x03(\v24.caas.crypto.v1.DigestVerifyRequest.UserContextEntryR\vuserContext\x1a>\n" +
 	"\x10UserContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
-	"\fscope_params\x12\x05\xbaH\x02\b\x01\"k\n" +
+	"\fscope_params\x12\x05\xbaH\x02\b\x01J\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"R\x0ehash_algorithmR\x12hash_algorithm_oid\"k\n" +
 	"\x14DigestVerifyResponse\x12\x14\n" +
 	"\x05valid\x18\x01 \x01(\bR\x05valid\x12=\n" +
 	"\bmetadata\x18\x02 \x01(\v2!.caas.crypto.v1.OperationMetadataR\bmetadata\"\xc1\x03\n" +
@@ -3140,40 +3096,39 @@ var file_messages_signing_proto_depIdxs = []int32{
 	50, // 18: caas.crypto.v1.DigestVerifyRequest.no_context:type_name -> caas.crypto.v1.NoParams
 	51, // 19: caas.crypto.v1.DigestVerifyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
 	52, // 20: caas.crypto.v1.DigestVerifyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	54, // 21: caas.crypto.v1.DigestVerifyRequest.hash_algorithm:type_name -> caas.crypto.v1.HashAlgorithm
-	43, // 22: caas.crypto.v1.DigestVerifyRequest.user_context:type_name -> caas.crypto.v1.DigestVerifyRequest.UserContextEntry
-	53, // 23: caas.crypto.v1.DigestVerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 24: caas.crypto.v1.SignInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 25: caas.crypto.v1.SignInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 26: caas.crypto.v1.SignInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	44, // 27: caas.crypto.v1.SignInitRequest.user_context:type_name -> caas.crypto.v1.SignInitRequest.UserContextEntry
-	53, // 28: caas.crypto.v1.SignFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 29: caas.crypto.v1.VerifyInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 30: caas.crypto.v1.VerifyInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 31: caas.crypto.v1.VerifyInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	53, // 32: caas.crypto.v1.VerifyInitRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	45, // 33: caas.crypto.v1.VerifyInitRequest.user_context:type_name -> caas.crypto.v1.VerifyInitRequest.UserContextEntry
-	53, // 34: caas.crypto.v1.VerifyFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 35: caas.crypto.v1.SignMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 36: caas.crypto.v1.SignMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 37: caas.crypto.v1.SignMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	46, // 38: caas.crypto.v1.SignMessageInitRequest.user_context:type_name -> caas.crypto.v1.SignMessageInitRequest.UserContextEntry
-	47, // 39: caas.crypto.v1.SignMessageRequest.user_context:type_name -> caas.crypto.v1.SignMessageRequest.UserContextEntry
-	53, // 40: caas.crypto.v1.SignMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 41: caas.crypto.v1.SignMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 42: caas.crypto.v1.VerifyMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 43: caas.crypto.v1.VerifyMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 44: caas.crypto.v1.VerifyMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	48, // 45: caas.crypto.v1.VerifyMessageInitRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
-	53, // 46: caas.crypto.v1.VerifyMessageRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	49, // 47: caas.crypto.v1.VerifyMessageRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageRequest.UserContextEntry
-	53, // 48: caas.crypto.v1.VerifyMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 49: caas.crypto.v1.VerifyMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // [50:50] is the sub-list for method output_type
-	50, // [50:50] is the sub-list for method input_type
-	50, // [50:50] is the sub-list for extension type_name
-	50, // [50:50] is the sub-list for extension extendee
-	0,  // [0:50] is the sub-list for field type_name
+	43, // 21: caas.crypto.v1.DigestVerifyRequest.user_context:type_name -> caas.crypto.v1.DigestVerifyRequest.UserContextEntry
+	53, // 22: caas.crypto.v1.DigestVerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	50, // 23: caas.crypto.v1.SignInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	51, // 24: caas.crypto.v1.SignInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	52, // 25: caas.crypto.v1.SignInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	44, // 26: caas.crypto.v1.SignInitRequest.user_context:type_name -> caas.crypto.v1.SignInitRequest.UserContextEntry
+	53, // 27: caas.crypto.v1.SignFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	50, // 28: caas.crypto.v1.VerifyInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	51, // 29: caas.crypto.v1.VerifyInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	52, // 30: caas.crypto.v1.VerifyInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	53, // 31: caas.crypto.v1.VerifyInitRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	45, // 32: caas.crypto.v1.VerifyInitRequest.user_context:type_name -> caas.crypto.v1.VerifyInitRequest.UserContextEntry
+	53, // 33: caas.crypto.v1.VerifyFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	50, // 34: caas.crypto.v1.SignMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	51, // 35: caas.crypto.v1.SignMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	52, // 36: caas.crypto.v1.SignMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	46, // 37: caas.crypto.v1.SignMessageInitRequest.user_context:type_name -> caas.crypto.v1.SignMessageInitRequest.UserContextEntry
+	47, // 38: caas.crypto.v1.SignMessageRequest.user_context:type_name -> caas.crypto.v1.SignMessageRequest.UserContextEntry
+	53, // 39: caas.crypto.v1.SignMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	53, // 40: caas.crypto.v1.SignMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	50, // 41: caas.crypto.v1.VerifyMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	51, // 42: caas.crypto.v1.VerifyMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	52, // 43: caas.crypto.v1.VerifyMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	48, // 44: caas.crypto.v1.VerifyMessageInitRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
+	53, // 45: caas.crypto.v1.VerifyMessageRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	49, // 46: caas.crypto.v1.VerifyMessageRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageRequest.UserContextEntry
+	53, // 47: caas.crypto.v1.VerifyMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	53, // 48: caas.crypto.v1.VerifyMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	49, // [49:49] is the sub-list for method output_type
+	49, // [49:49] is the sub-list for method input_type
+	49, // [49:49] is the sub-list for extension type_name
+	49, // [49:49] is the sub-list for extension extendee
+	0,  // [0:49] is the sub-list for field type_name
 }
 
 func init() { file_messages_signing_proto_init() }

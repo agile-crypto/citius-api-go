@@ -22,18 +22,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CryptoService_Encrypt_FullMethodName        = "/caas.crypto.v1.CryptoService/Encrypt"
-	CryptoService_Decrypt_FullMethodName        = "/caas.crypto.v1.CryptoService/Decrypt"
-	CryptoService_Sign_FullMethodName           = "/caas.crypto.v1.CryptoService/Sign"
-	CryptoService_Verify_FullMethodName         = "/caas.crypto.v1.CryptoService/Verify"
-	CryptoService_DigestSign_FullMethodName     = "/caas.crypto.v1.CryptoService/DigestSign"
-	CryptoService_DigestVerify_FullMethodName   = "/caas.crypto.v1.CryptoService/DigestVerify"
-	CryptoService_GenerateMAC_FullMethodName    = "/caas.crypto.v1.CryptoService/GenerateMAC"
-	CryptoService_VerifyMAC_FullMethodName      = "/caas.crypto.v1.CryptoService/VerifyMAC"
-	CryptoService_Digest_FullMethodName         = "/caas.crypto.v1.CryptoService/Digest"
-	CryptoService_Xof_FullMethodName            = "/caas.crypto.v1.CryptoService/Xof"
-	CryptoService_GenerateRandom_FullMethodName = "/caas.crypto.v1.CryptoService/GenerateRandom"
-	CryptoService_SeedRandom_FullMethodName     = "/caas.crypto.v1.CryptoService/SeedRandom"
+	CryptoService_Encrypt_FullMethodName             = "/caas.crypto.v1.CryptoService/Encrypt"
+	CryptoService_Decrypt_FullMethodName             = "/caas.crypto.v1.CryptoService/Decrypt"
+	CryptoService_Sign_FullMethodName                = "/caas.crypto.v1.CryptoService/Sign"
+	CryptoService_Verify_FullMethodName              = "/caas.crypto.v1.CryptoService/Verify"
+	CryptoService_DigestSign_FullMethodName          = "/caas.crypto.v1.CryptoService/DigestSign"
+	CryptoService_DigestVerify_FullMethodName        = "/caas.crypto.v1.CryptoService/DigestVerify"
+	CryptoService_GenerateMAC_FullMethodName         = "/caas.crypto.v1.CryptoService/GenerateMAC"
+	CryptoService_VerifyMAC_FullMethodName           = "/caas.crypto.v1.CryptoService/VerifyMAC"
+	CryptoService_Digest_FullMethodName              = "/caas.crypto.v1.CryptoService/Digest"
+	CryptoService_Xof_FullMethodName                 = "/caas.crypto.v1.CryptoService/Xof"
+	CryptoService_GenerateRandom_FullMethodName      = "/caas.crypto.v1.CryptoService/GenerateRandom"
+	CryptoService_SeedRandom_FullMethodName          = "/caas.crypto.v1.CryptoService/SeedRandom"
+	CryptoService_VerifyWithPublicKey_FullMethodName = "/caas.crypto.v1.CryptoService/VerifyWithPublicKey"
 )
 
 // CryptoServiceClient is the client API for CryptoService service.
@@ -53,6 +54,9 @@ type CryptoServiceClient interface {
 	Xof(ctx context.Context, in *messages.XofRequest, opts ...grpc.CallOption) (*messages.XofResponse, error)
 	GenerateRandom(ctx context.Context, in *messages.GenerateRandomRequest, opts ...grpc.CallOption) (*messages.GenerateRandomResponse, error)
 	SeedRandom(ctx context.Context, in *messages.SeedRandomRequest, opts ...grpc.CallOption) (*messages.SeedRandomResponse, error)
+	// Stateless signature verification using a public key (no key management required).
+	// The public key is provided in the request, and the signature is verified against the provided data.
+	VerifyWithPublicKey(ctx context.Context, in *messages.VerifyWithPublicKeyRequest, opts ...grpc.CallOption) (*messages.VerifyWithPublicKeyResponse, error)
 }
 
 type cryptoServiceClient struct {
@@ -183,6 +187,16 @@ func (c *cryptoServiceClient) SeedRandom(ctx context.Context, in *messages.SeedR
 	return out, nil
 }
 
+func (c *cryptoServiceClient) VerifyWithPublicKey(ctx context.Context, in *messages.VerifyWithPublicKeyRequest, opts ...grpc.CallOption) (*messages.VerifyWithPublicKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(messages.VerifyWithPublicKeyResponse)
+	err := c.cc.Invoke(ctx, CryptoService_VerifyWithPublicKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CryptoServiceServer is the server API for CryptoService service.
 // All implementations must embed UnimplementedCryptoServiceServer
 // for forward compatibility.
@@ -200,6 +214,9 @@ type CryptoServiceServer interface {
 	Xof(context.Context, *messages.XofRequest) (*messages.XofResponse, error)
 	GenerateRandom(context.Context, *messages.GenerateRandomRequest) (*messages.GenerateRandomResponse, error)
 	SeedRandom(context.Context, *messages.SeedRandomRequest) (*messages.SeedRandomResponse, error)
+	// Stateless signature verification using a public key (no key management required).
+	// The public key is provided in the request, and the signature is verified against the provided data.
+	VerifyWithPublicKey(context.Context, *messages.VerifyWithPublicKeyRequest) (*messages.VerifyWithPublicKeyResponse, error)
 	mustEmbedUnimplementedCryptoServiceServer()
 }
 
@@ -245,6 +262,9 @@ func (UnimplementedCryptoServiceServer) GenerateRandom(context.Context, *message
 }
 func (UnimplementedCryptoServiceServer) SeedRandom(context.Context, *messages.SeedRandomRequest) (*messages.SeedRandomResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SeedRandom not implemented")
+}
+func (UnimplementedCryptoServiceServer) VerifyWithPublicKey(context.Context, *messages.VerifyWithPublicKeyRequest) (*messages.VerifyWithPublicKeyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method VerifyWithPublicKey not implemented")
 }
 func (UnimplementedCryptoServiceServer) mustEmbedUnimplementedCryptoServiceServer() {}
 func (UnimplementedCryptoServiceServer) testEmbeddedByValue()                       {}
@@ -483,6 +503,24 @@ func _CryptoService_SeedRandom_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CryptoService_VerifyWithPublicKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(messages.VerifyWithPublicKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CryptoServiceServer).VerifyWithPublicKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CryptoService_VerifyWithPublicKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CryptoServiceServer).VerifyWithPublicKey(ctx, req.(*messages.VerifyWithPublicKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CryptoService_ServiceDesc is the grpc.ServiceDesc for CryptoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -537,6 +575,10 @@ var CryptoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SeedRandom",
 			Handler:    _CryptoService_SeedRandom_Handler,
+		},
+		{
+			MethodName: "VerifyWithPublicKey",
+			Handler:    _CryptoService_VerifyWithPublicKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

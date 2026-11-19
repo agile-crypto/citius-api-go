@@ -28,8 +28,7 @@ var File_services_crypto_service_proto protoreflect.FileDescriptor
 
 const file_services_crypto_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1dservices/crypto_service.proto\x12\x0ecaas.crypto.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x19messages/encryption.proto\x1a\x16messages/signing.proto\x1a\x15messages/digest.proto\x1a\x12messages/mac.proto\x1a\x15messages/random.proto2\xda\n" +
-	"\n" +
+	"\x1dservices/crypto_service.proto\x12\x0ecaas.crypto.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x19messages/encryption.proto\x1a\x16messages/signing.proto\x1a\x15messages/digest.proto\x1a\x12messages/mac.proto\x1a\x15messages/random.proto2\xec\v\n" +
 	"\rCryptoService\x12m\n" +
 	"\aEncrypt\x12\x1e.caas.crypto.v1.EncryptRequest\x1a\x1f.caas.crypto.v1.EncryptResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/encrypt/{key_name}\x12m\n" +
 	"\aDecrypt\x12\x1e.caas.crypto.v1.DecryptRequest\x1a\x1f.caas.crypto.v1.DecryptResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/decrypt/{key_name}\x12a\n" +
@@ -45,33 +44,36 @@ const file_services_crypto_service_proto_rawDesc = "" +
 	"\x03Xof\x12\x1a.caas.crypto.v1.XofRequest\x1a\x1b.caas.crypto.v1.XofResponse\"\x12\x82\xd3\xe4\x93\x02\f:\x01*\"\a/v1/xof\x12\x7f\n" +
 	"\x0eGenerateRandom\x12%.caas.crypto.v1.GenerateRandomRequest\x1a&.caas.crypto.v1.GenerateRandomResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/random/generate\x12o\n" +
 	"\n" +
-	"SeedRandom\x12!.caas.crypto.v1.SeedRandomRequest\x1a\".caas.crypto.v1.SeedRandomResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/random/seedB@Z>github.com/agile-crypto/citius-api-go/gen/go/services;servicesb\x06proto3"
+	"SeedRandom\x12!.caas.crypto.v1.SeedRandomRequest\x1a\".caas.crypto.v1.SeedRandomResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/random/seed\x12\x8f\x01\n" +
+	"\x13VerifyWithPublicKey\x12*.caas.crypto.v1.VerifyWithPublicKeyRequest\x1a+.caas.crypto.v1.VerifyWithPublicKeyResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/verify/publickeyB@Z>github.com/agile-crypto/citius-api-go/gen/go/services;servicesb\x06proto3"
 
 var file_services_crypto_service_proto_goTypes = []any{
-	(*messages.EncryptRequest)(nil),         // 0: caas.crypto.v1.EncryptRequest
-	(*messages.DecryptRequest)(nil),         // 1: caas.crypto.v1.DecryptRequest
-	(*messages.SignRequest)(nil),            // 2: caas.crypto.v1.SignRequest
-	(*messages.VerifyRequest)(nil),          // 3: caas.crypto.v1.VerifyRequest
-	(*messages.DigestSignRequest)(nil),      // 4: caas.crypto.v1.DigestSignRequest
-	(*messages.DigestVerifyRequest)(nil),    // 5: caas.crypto.v1.DigestVerifyRequest
-	(*messages.GenerateMACRequest)(nil),     // 6: caas.crypto.v1.GenerateMACRequest
-	(*messages.VerifyMACRequest)(nil),       // 7: caas.crypto.v1.VerifyMACRequest
-	(*messages.DigestRequest)(nil),          // 8: caas.crypto.v1.DigestRequest
-	(*messages.XofRequest)(nil),             // 9: caas.crypto.v1.XofRequest
-	(*messages.GenerateRandomRequest)(nil),  // 10: caas.crypto.v1.GenerateRandomRequest
-	(*messages.SeedRandomRequest)(nil),      // 11: caas.crypto.v1.SeedRandomRequest
-	(*messages.EncryptResponse)(nil),        // 12: caas.crypto.v1.EncryptResponse
-	(*messages.DecryptResponse)(nil),        // 13: caas.crypto.v1.DecryptResponse
-	(*messages.SignResponse)(nil),           // 14: caas.crypto.v1.SignResponse
-	(*messages.VerifyResponse)(nil),         // 15: caas.crypto.v1.VerifyResponse
-	(*messages.DigestSignResponse)(nil),     // 16: caas.crypto.v1.DigestSignResponse
-	(*messages.DigestVerifyResponse)(nil),   // 17: caas.crypto.v1.DigestVerifyResponse
-	(*messages.GenerateMACResponse)(nil),    // 18: caas.crypto.v1.GenerateMACResponse
-	(*messages.VerifyMACResponse)(nil),      // 19: caas.crypto.v1.VerifyMACResponse
-	(*messages.DigestResponse)(nil),         // 20: caas.crypto.v1.DigestResponse
-	(*messages.XofResponse)(nil),            // 21: caas.crypto.v1.XofResponse
-	(*messages.GenerateRandomResponse)(nil), // 22: caas.crypto.v1.GenerateRandomResponse
-	(*messages.SeedRandomResponse)(nil),     // 23: caas.crypto.v1.SeedRandomResponse
+	(*messages.EncryptRequest)(nil),              // 0: caas.crypto.v1.EncryptRequest
+	(*messages.DecryptRequest)(nil),              // 1: caas.crypto.v1.DecryptRequest
+	(*messages.SignRequest)(nil),                 // 2: caas.crypto.v1.SignRequest
+	(*messages.VerifyRequest)(nil),               // 3: caas.crypto.v1.VerifyRequest
+	(*messages.DigestSignRequest)(nil),           // 4: caas.crypto.v1.DigestSignRequest
+	(*messages.DigestVerifyRequest)(nil),         // 5: caas.crypto.v1.DigestVerifyRequest
+	(*messages.GenerateMACRequest)(nil),          // 6: caas.crypto.v1.GenerateMACRequest
+	(*messages.VerifyMACRequest)(nil),            // 7: caas.crypto.v1.VerifyMACRequest
+	(*messages.DigestRequest)(nil),               // 8: caas.crypto.v1.DigestRequest
+	(*messages.XofRequest)(nil),                  // 9: caas.crypto.v1.XofRequest
+	(*messages.GenerateRandomRequest)(nil),       // 10: caas.crypto.v1.GenerateRandomRequest
+	(*messages.SeedRandomRequest)(nil),           // 11: caas.crypto.v1.SeedRandomRequest
+	(*messages.VerifyWithPublicKeyRequest)(nil),  // 12: caas.crypto.v1.VerifyWithPublicKeyRequest
+	(*messages.EncryptResponse)(nil),             // 13: caas.crypto.v1.EncryptResponse
+	(*messages.DecryptResponse)(nil),             // 14: caas.crypto.v1.DecryptResponse
+	(*messages.SignResponse)(nil),                // 15: caas.crypto.v1.SignResponse
+	(*messages.VerifyResponse)(nil),              // 16: caas.crypto.v1.VerifyResponse
+	(*messages.DigestSignResponse)(nil),          // 17: caas.crypto.v1.DigestSignResponse
+	(*messages.DigestVerifyResponse)(nil),        // 18: caas.crypto.v1.DigestVerifyResponse
+	(*messages.GenerateMACResponse)(nil),         // 19: caas.crypto.v1.GenerateMACResponse
+	(*messages.VerifyMACResponse)(nil),           // 20: caas.crypto.v1.VerifyMACResponse
+	(*messages.DigestResponse)(nil),              // 21: caas.crypto.v1.DigestResponse
+	(*messages.XofResponse)(nil),                 // 22: caas.crypto.v1.XofResponse
+	(*messages.GenerateRandomResponse)(nil),      // 23: caas.crypto.v1.GenerateRandomResponse
+	(*messages.SeedRandomResponse)(nil),          // 24: caas.crypto.v1.SeedRandomResponse
+	(*messages.VerifyWithPublicKeyResponse)(nil), // 25: caas.crypto.v1.VerifyWithPublicKeyResponse
 }
 var file_services_crypto_service_proto_depIdxs = []int32{
 	0,  // 0: caas.crypto.v1.CryptoService.Encrypt:input_type -> caas.crypto.v1.EncryptRequest
@@ -86,20 +88,22 @@ var file_services_crypto_service_proto_depIdxs = []int32{
 	9,  // 9: caas.crypto.v1.CryptoService.Xof:input_type -> caas.crypto.v1.XofRequest
 	10, // 10: caas.crypto.v1.CryptoService.GenerateRandom:input_type -> caas.crypto.v1.GenerateRandomRequest
 	11, // 11: caas.crypto.v1.CryptoService.SeedRandom:input_type -> caas.crypto.v1.SeedRandomRequest
-	12, // 12: caas.crypto.v1.CryptoService.Encrypt:output_type -> caas.crypto.v1.EncryptResponse
-	13, // 13: caas.crypto.v1.CryptoService.Decrypt:output_type -> caas.crypto.v1.DecryptResponse
-	14, // 14: caas.crypto.v1.CryptoService.Sign:output_type -> caas.crypto.v1.SignResponse
-	15, // 15: caas.crypto.v1.CryptoService.Verify:output_type -> caas.crypto.v1.VerifyResponse
-	16, // 16: caas.crypto.v1.CryptoService.DigestSign:output_type -> caas.crypto.v1.DigestSignResponse
-	17, // 17: caas.crypto.v1.CryptoService.DigestVerify:output_type -> caas.crypto.v1.DigestVerifyResponse
-	18, // 18: caas.crypto.v1.CryptoService.GenerateMAC:output_type -> caas.crypto.v1.GenerateMACResponse
-	19, // 19: caas.crypto.v1.CryptoService.VerifyMAC:output_type -> caas.crypto.v1.VerifyMACResponse
-	20, // 20: caas.crypto.v1.CryptoService.Digest:output_type -> caas.crypto.v1.DigestResponse
-	21, // 21: caas.crypto.v1.CryptoService.Xof:output_type -> caas.crypto.v1.XofResponse
-	22, // 22: caas.crypto.v1.CryptoService.GenerateRandom:output_type -> caas.crypto.v1.GenerateRandomResponse
-	23, // 23: caas.crypto.v1.CryptoService.SeedRandom:output_type -> caas.crypto.v1.SeedRandomResponse
-	12, // [12:24] is the sub-list for method output_type
-	0,  // [0:12] is the sub-list for method input_type
+	12, // 12: caas.crypto.v1.CryptoService.VerifyWithPublicKey:input_type -> caas.crypto.v1.VerifyWithPublicKeyRequest
+	13, // 13: caas.crypto.v1.CryptoService.Encrypt:output_type -> caas.crypto.v1.EncryptResponse
+	14, // 14: caas.crypto.v1.CryptoService.Decrypt:output_type -> caas.crypto.v1.DecryptResponse
+	15, // 15: caas.crypto.v1.CryptoService.Sign:output_type -> caas.crypto.v1.SignResponse
+	16, // 16: caas.crypto.v1.CryptoService.Verify:output_type -> caas.crypto.v1.VerifyResponse
+	17, // 17: caas.crypto.v1.CryptoService.DigestSign:output_type -> caas.crypto.v1.DigestSignResponse
+	18, // 18: caas.crypto.v1.CryptoService.DigestVerify:output_type -> caas.crypto.v1.DigestVerifyResponse
+	19, // 19: caas.crypto.v1.CryptoService.GenerateMAC:output_type -> caas.crypto.v1.GenerateMACResponse
+	20, // 20: caas.crypto.v1.CryptoService.VerifyMAC:output_type -> caas.crypto.v1.VerifyMACResponse
+	21, // 21: caas.crypto.v1.CryptoService.Digest:output_type -> caas.crypto.v1.DigestResponse
+	22, // 22: caas.crypto.v1.CryptoService.Xof:output_type -> caas.crypto.v1.XofResponse
+	23, // 23: caas.crypto.v1.CryptoService.GenerateRandom:output_type -> caas.crypto.v1.GenerateRandomResponse
+	24, // 24: caas.crypto.v1.CryptoService.SeedRandom:output_type -> caas.crypto.v1.SeedRandomResponse
+	25, // 25: caas.crypto.v1.CryptoService.VerifyWithPublicKey:output_type -> caas.crypto.v1.VerifyWithPublicKeyResponse
+	13, // [13:26] is the sub-list for method output_type
+	0,  // [0:13] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

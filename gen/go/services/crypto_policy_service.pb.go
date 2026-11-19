@@ -28,7 +28,7 @@ var File_services_crypto_policy_service_proto protoreflect.FileDescriptor
 
 const file_services_crypto_policy_service_proto_rawDesc = "" +
 	"\n" +
-	"$services/crypto_policy_service.proto\x12\x0ecaas.crypto.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x15messages/policy.proto2\xf0\a\n" +
+	"$services/crypto_policy_service.proto\x12\x0ecaas.crypto.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x15messages/policy.proto2\x9e\t\n" +
 	"\x13CryptoPolicyService\x12\x8b\x01\n" +
 	"\x12CreateCryptoPolicy\x12).caas.crypto.v1.CreateCryptoPolicyRequest\x1a*.caas.crypto.v1.CreateCryptoPolicyResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/policies/{name}\x12\x82\x01\n" +
 	"\x10ReadCryptoPolicy\x12'.caas.crypto.v1.ReadCryptoPolicyRequest\x1a(.caas.crypto.v1.ReadCryptoPolicyResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/policies/{name}\x12\x88\x01\n" +
@@ -36,23 +36,26 @@ const file_services_crypto_policy_service_proto_rawDesc = "" +
 	"\x12UpdateCryptoPolicy\x12).caas.crypto.v1.UpdateCryptoPolicyRequest\x1a*.caas.crypto.v1.UpdateCryptoPolicyResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/v1/policies/{name}\x12\x81\x01\n" +
 	"\x12ListCryptoPolicies\x12).caas.crypto.v1.ListCryptoPoliciesRequest\x1a*.caas.crypto.v1.ListCryptoPoliciesResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/policies\x12\x8f\x01\n" +
 	"\x0eEvaluatePolicy\x12%.caas.crypto.v1.EvaluatePolicyRequest\x1a&.caas.crypto.v1.EvaluatePolicyResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/policies/{policy_name}/evaluate\x12\x96\x01\n" +
-	"\x13BatchEvaluatePolicy\x12*.caas.crypto.v1.BatchEvaluatePolicyRequest\x1a+.caas.crypto.v1.BatchEvaluatePolicyResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/policies/evaluate/batchB@Z>github.com/agile-crypto/citius-api-go/gen/go/services;servicesb\x06proto3"
+	"\x13BatchEvaluatePolicy\x12*.caas.crypto.v1.BatchEvaluatePolicyRequest\x1a+.caas.crypto.v1.BatchEvaluatePolicyResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/policies/evaluate/batch\x12\xab\x01\n" +
+	"\x15ListAllowedAlgorithms\x12,.caas.crypto.v1.ListAllowedAlgorithmsRequest\x1a-.caas.crypto.v1.ListAllowedAlgorithmsResponse\"5\x82\xd3\xe4\x93\x02/\x12-/v1/policies/{policy_name}/allowed_algorithmsB@Z>github.com/agile-crypto/citius-api-go/gen/go/services;servicesb\x06proto3"
 
 var file_services_crypto_policy_service_proto_goTypes = []any{
-	(*messages.CreateCryptoPolicyRequest)(nil),   // 0: caas.crypto.v1.CreateCryptoPolicyRequest
-	(*messages.ReadCryptoPolicyRequest)(nil),     // 1: caas.crypto.v1.ReadCryptoPolicyRequest
-	(*messages.DeleteCryptoPolicyRequest)(nil),   // 2: caas.crypto.v1.DeleteCryptoPolicyRequest
-	(*messages.UpdateCryptoPolicyRequest)(nil),   // 3: caas.crypto.v1.UpdateCryptoPolicyRequest
-	(*messages.ListCryptoPoliciesRequest)(nil),   // 4: caas.crypto.v1.ListCryptoPoliciesRequest
-	(*messages.EvaluatePolicyRequest)(nil),       // 5: caas.crypto.v1.EvaluatePolicyRequest
-	(*messages.BatchEvaluatePolicyRequest)(nil),  // 6: caas.crypto.v1.BatchEvaluatePolicyRequest
-	(*messages.CreateCryptoPolicyResponse)(nil),  // 7: caas.crypto.v1.CreateCryptoPolicyResponse
-	(*messages.ReadCryptoPolicyResponse)(nil),    // 8: caas.crypto.v1.ReadCryptoPolicyResponse
-	(*messages.DeleteCryptoPolicyResponse)(nil),  // 9: caas.crypto.v1.DeleteCryptoPolicyResponse
-	(*messages.UpdateCryptoPolicyResponse)(nil),  // 10: caas.crypto.v1.UpdateCryptoPolicyResponse
-	(*messages.ListCryptoPoliciesResponse)(nil),  // 11: caas.crypto.v1.ListCryptoPoliciesResponse
-	(*messages.EvaluatePolicyResponse)(nil),      // 12: caas.crypto.v1.EvaluatePolicyResponse
-	(*messages.BatchEvaluatePolicyResponse)(nil), // 13: caas.crypto.v1.BatchEvaluatePolicyResponse
+	(*messages.CreateCryptoPolicyRequest)(nil),     // 0: caas.crypto.v1.CreateCryptoPolicyRequest
+	(*messages.ReadCryptoPolicyRequest)(nil),       // 1: caas.crypto.v1.ReadCryptoPolicyRequest
+	(*messages.DeleteCryptoPolicyRequest)(nil),     // 2: caas.crypto.v1.DeleteCryptoPolicyRequest
+	(*messages.UpdateCryptoPolicyRequest)(nil),     // 3: caas.crypto.v1.UpdateCryptoPolicyRequest
+	(*messages.ListCryptoPoliciesRequest)(nil),     // 4: caas.crypto.v1.ListCryptoPoliciesRequest
+	(*messages.EvaluatePolicyRequest)(nil),         // 5: caas.crypto.v1.EvaluatePolicyRequest
+	(*messages.BatchEvaluatePolicyRequest)(nil),    // 6: caas.crypto.v1.BatchEvaluatePolicyRequest
+	(*messages.ListAllowedAlgorithmsRequest)(nil),  // 7: caas.crypto.v1.ListAllowedAlgorithmsRequest
+	(*messages.CreateCryptoPolicyResponse)(nil),    // 8: caas.crypto.v1.CreateCryptoPolicyResponse
+	(*messages.ReadCryptoPolicyResponse)(nil),      // 9: caas.crypto.v1.ReadCryptoPolicyResponse
+	(*messages.DeleteCryptoPolicyResponse)(nil),    // 10: caas.crypto.v1.DeleteCryptoPolicyResponse
+	(*messages.UpdateCryptoPolicyResponse)(nil),    // 11: caas.crypto.v1.UpdateCryptoPolicyResponse
+	(*messages.ListCryptoPoliciesResponse)(nil),    // 12: caas.crypto.v1.ListCryptoPoliciesResponse
+	(*messages.EvaluatePolicyResponse)(nil),        // 13: caas.crypto.v1.EvaluatePolicyResponse
+	(*messages.BatchEvaluatePolicyResponse)(nil),   // 14: caas.crypto.v1.BatchEvaluatePolicyResponse
+	(*messages.ListAllowedAlgorithmsResponse)(nil), // 15: caas.crypto.v1.ListAllowedAlgorithmsResponse
 }
 var file_services_crypto_policy_service_proto_depIdxs = []int32{
 	0,  // 0: caas.crypto.v1.CryptoPolicyService.CreateCryptoPolicy:input_type -> caas.crypto.v1.CreateCryptoPolicyRequest
@@ -62,15 +65,17 @@ var file_services_crypto_policy_service_proto_depIdxs = []int32{
 	4,  // 4: caas.crypto.v1.CryptoPolicyService.ListCryptoPolicies:input_type -> caas.crypto.v1.ListCryptoPoliciesRequest
 	5,  // 5: caas.crypto.v1.CryptoPolicyService.EvaluatePolicy:input_type -> caas.crypto.v1.EvaluatePolicyRequest
 	6,  // 6: caas.crypto.v1.CryptoPolicyService.BatchEvaluatePolicy:input_type -> caas.crypto.v1.BatchEvaluatePolicyRequest
-	7,  // 7: caas.crypto.v1.CryptoPolicyService.CreateCryptoPolicy:output_type -> caas.crypto.v1.CreateCryptoPolicyResponse
-	8,  // 8: caas.crypto.v1.CryptoPolicyService.ReadCryptoPolicy:output_type -> caas.crypto.v1.ReadCryptoPolicyResponse
-	9,  // 9: caas.crypto.v1.CryptoPolicyService.DeleteCryptoPolicy:output_type -> caas.crypto.v1.DeleteCryptoPolicyResponse
-	10, // 10: caas.crypto.v1.CryptoPolicyService.UpdateCryptoPolicy:output_type -> caas.crypto.v1.UpdateCryptoPolicyResponse
-	11, // 11: caas.crypto.v1.CryptoPolicyService.ListCryptoPolicies:output_type -> caas.crypto.v1.ListCryptoPoliciesResponse
-	12, // 12: caas.crypto.v1.CryptoPolicyService.EvaluatePolicy:output_type -> caas.crypto.v1.EvaluatePolicyResponse
-	13, // 13: caas.crypto.v1.CryptoPolicyService.BatchEvaluatePolicy:output_type -> caas.crypto.v1.BatchEvaluatePolicyResponse
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	7,  // 7: caas.crypto.v1.CryptoPolicyService.ListAllowedAlgorithms:input_type -> caas.crypto.v1.ListAllowedAlgorithmsRequest
+	8,  // 8: caas.crypto.v1.CryptoPolicyService.CreateCryptoPolicy:output_type -> caas.crypto.v1.CreateCryptoPolicyResponse
+	9,  // 9: caas.crypto.v1.CryptoPolicyService.ReadCryptoPolicy:output_type -> caas.crypto.v1.ReadCryptoPolicyResponse
+	10, // 10: caas.crypto.v1.CryptoPolicyService.DeleteCryptoPolicy:output_type -> caas.crypto.v1.DeleteCryptoPolicyResponse
+	11, // 11: caas.crypto.v1.CryptoPolicyService.UpdateCryptoPolicy:output_type -> caas.crypto.v1.UpdateCryptoPolicyResponse
+	12, // 12: caas.crypto.v1.CryptoPolicyService.ListCryptoPolicies:output_type -> caas.crypto.v1.ListCryptoPoliciesResponse
+	13, // 13: caas.crypto.v1.CryptoPolicyService.EvaluatePolicy:output_type -> caas.crypto.v1.EvaluatePolicyResponse
+	14, // 14: caas.crypto.v1.CryptoPolicyService.BatchEvaluatePolicy:output_type -> caas.crypto.v1.BatchEvaluatePolicyResponse
+	15, // 15: caas.crypto.v1.CryptoPolicyService.ListAllowedAlgorithms:output_type -> caas.crypto.v1.ListAllowedAlgorithmsResponse
+	8,  // [8:16] is the sub-list for method output_type
+	0,  // [0:8] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

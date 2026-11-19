@@ -1206,6 +1206,130 @@ func (x *BatchEvaluatePolicyResponse) GetDeniedCount() int32 {
 	return 0
 }
 
+type ListAllowedAlgorithmsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Policy to evaluate against. Required.
+	PolicyName    string                    `protobuf:"bytes,1,opt,name=policy_name,json=policyName,proto3" json:"policy_name,omitempty"`
+	Filters       *types.ScopeSpecification `protobuf:"bytes,2,opt,name=filters,proto3,oneof" json:"filters,omitempty"` // Optional: filter universe of algorithms
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllowedAlgorithmsRequest) Reset() {
+	*x = ListAllowedAlgorithmsRequest{}
+	mi := &file_messages_policy_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllowedAlgorithmsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllowedAlgorithmsRequest) ProtoMessage() {}
+
+func (x *ListAllowedAlgorithmsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_policy_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllowedAlgorithmsRequest.ProtoReflect.Descriptor instead.
+func (*ListAllowedAlgorithmsRequest) Descriptor() ([]byte, []int) {
+	return file_messages_policy_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ListAllowedAlgorithmsRequest) GetPolicyName() string {
+	if x != nil {
+		return x.PolicyName
+	}
+	return ""
+}
+
+func (x *ListAllowedAlgorithmsRequest) GetFilters() *types.ScopeSpecification {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+type ListAllowedAlgorithmsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PolicyName    string                 `protobuf:"bytes,1,opt,name=policy_name,json=policyName,proto3" json:"policy_name,omitempty"`
+	PolicyVersion int32                  `protobuf:"varint,2,opt,name=policy_version,json=policyVersion,proto3" json:"policy_version,omitempty"`
+	// List of algorithm templates allowed by the policy (after filtering)
+	AllowedTemplates []string `protobuf:"bytes,3,rep,name=allowed_templates,json=allowedTemplates,proto3" json:"allowed_templates,omitempty"`
+	// Deprecated: legacy template IDs for backward compatibility. Allow for recipient-usage only (eg. decryption, signature verification).
+	// Do not use for new operations.
+	LegacyTemplates []string `protobuf:"bytes,4,rep,name=legacy_templates,json=legacyTemplates,proto3" json:"legacy_templates,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ListAllowedAlgorithmsResponse) Reset() {
+	*x = ListAllowedAlgorithmsResponse{}
+	mi := &file_messages_policy_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllowedAlgorithmsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllowedAlgorithmsResponse) ProtoMessage() {}
+
+func (x *ListAllowedAlgorithmsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_policy_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllowedAlgorithmsResponse.ProtoReflect.Descriptor instead.
+func (*ListAllowedAlgorithmsResponse) Descriptor() ([]byte, []int) {
+	return file_messages_policy_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListAllowedAlgorithmsResponse) GetPolicyName() string {
+	if x != nil {
+		return x.PolicyName
+	}
+	return ""
+}
+
+func (x *ListAllowedAlgorithmsResponse) GetPolicyVersion() int32 {
+	if x != nil {
+		return x.PolicyVersion
+	}
+	return 0
+}
+
+func (x *ListAllowedAlgorithmsResponse) GetAllowedTemplates() []string {
+	if x != nil {
+		return x.AllowedTemplates
+	}
+	return nil
+}
+
+func (x *ListAllowedAlgorithmsResponse) GetLegacyTemplates() []string {
+	if x != nil {
+		return x.LegacyTemplates
+	}
+	return nil
+}
+
 var File_messages_policy_proto protoreflect.FileDescriptor
 
 const file_messages_policy_proto_rawDesc = "" +
@@ -1309,7 +1433,20 @@ const file_messages_policy_proto_rawDesc = "" +
 	"\x1bBatchEvaluatePolicyResponse\x12@\n" +
 	"\aresults\x18\x01 \x03(\v2&.caas.crypto.v1.EvaluatePolicyResponseR\aresults\x12#\n" +
 	"\rallowed_count\x18\x02 \x01(\x05R\fallowedCount\x12!\n" +
-	"\fdenied_count\x18\x03 \x01(\x05R\vdeniedCount*\xff\x03\n" +
+	"\fdenied_count\x18\x03 \x01(\x05R\vdeniedCount\"\x9a\x01\n" +
+	"\x1cListAllowedAlgorithmsRequest\x12+\n" +
+	"\vpolicy_name\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\n" +
+	"policyName\x12A\n" +
+	"\afilters\x18\x02 \x01(\v2\".caas.crypto.v1.ScopeSpecificationH\x00R\afilters\x88\x01\x01B\n" +
+	"\n" +
+	"\b_filters\"\xbf\x01\n" +
+	"\x1dListAllowedAlgorithmsResponse\x12\x1f\n" +
+	"\vpolicy_name\x18\x01 \x01(\tR\n" +
+	"policyName\x12%\n" +
+	"\x0epolicy_version\x18\x02 \x01(\x05R\rpolicyVersion\x12+\n" +
+	"\x11allowed_templates\x18\x03 \x03(\tR\x10allowedTemplates\x12)\n" +
+	"\x10legacy_templates\x18\x04 \x03(\tR\x0flegacyTemplates*\xff\x03\n" +
 	"\x12PolicyDenialReason\x12$\n" +
 	" POLICY_DENIAL_REASON_UNSPECIFIED\x10\x00\x12)\n" +
 	"%POLICY_DENIAL_REASON_POLICY_NOT_FOUND\x10\x01\x12.\n" +
@@ -1337,51 +1474,54 @@ func file_messages_policy_proto_rawDescGZIP() []byte {
 }
 
 var file_messages_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_messages_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_messages_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_messages_policy_proto_goTypes = []any{
-	(PolicyDenialReason)(0),             // 0: caas.crypto.v1.PolicyDenialReason
-	(*CreateCryptoPolicyRequest)(nil),   // 1: caas.crypto.v1.CreateCryptoPolicyRequest
-	(*CreateCryptoPolicyResponse)(nil),  // 2: caas.crypto.v1.CreateCryptoPolicyResponse
-	(*ReadCryptoPolicyRequest)(nil),     // 3: caas.crypto.v1.ReadCryptoPolicyRequest
-	(*ReadCryptoPolicyResponse)(nil),    // 4: caas.crypto.v1.ReadCryptoPolicyResponse
-	(*DeleteCryptoPolicyRequest)(nil),   // 5: caas.crypto.v1.DeleteCryptoPolicyRequest
-	(*DeleteCryptoPolicyResponse)(nil),  // 6: caas.crypto.v1.DeleteCryptoPolicyResponse
-	(*UpdateCryptoPolicyRequest)(nil),   // 7: caas.crypto.v1.UpdateCryptoPolicyRequest
-	(*UpdateCryptoPolicyResponse)(nil),  // 8: caas.crypto.v1.UpdateCryptoPolicyResponse
-	(*ListCryptoPoliciesRequest)(nil),   // 9: caas.crypto.v1.ListCryptoPoliciesRequest
-	(*ListCryptoPoliciesResponse)(nil),  // 10: caas.crypto.v1.ListCryptoPoliciesResponse
-	(*PolicySummary)(nil),               // 11: caas.crypto.v1.PolicySummary
-	(*EvaluatePolicyRequest)(nil),       // 12: caas.crypto.v1.EvaluatePolicyRequest
-	(*EvaluatePolicyResponse)(nil),      // 13: caas.crypto.v1.EvaluatePolicyResponse
-	(*PolicyDecisionDetails)(nil),       // 14: caas.crypto.v1.PolicyDecisionDetails
-	(*BatchEvaluatePolicyRequest)(nil),  // 15: caas.crypto.v1.BatchEvaluatePolicyRequest
-	(*BatchEvaluatePolicyResponse)(nil), // 16: caas.crypto.v1.BatchEvaluatePolicyResponse
-	nil,                                 // 17: caas.crypto.v1.EvaluatePolicyRequest.PropertiesEntry
-	(*timestamppb.Timestamp)(nil),       // 18: google.protobuf.Timestamp
-	(types.CryptoOperation)(0),          // 19: caas.crypto.v1.CryptoOperation
-	(*types.ScopeSpecification)(nil),    // 20: caas.crypto.v1.ScopeSpecification
+	(PolicyDenialReason)(0),               // 0: caas.crypto.v1.PolicyDenialReason
+	(*CreateCryptoPolicyRequest)(nil),     // 1: caas.crypto.v1.CreateCryptoPolicyRequest
+	(*CreateCryptoPolicyResponse)(nil),    // 2: caas.crypto.v1.CreateCryptoPolicyResponse
+	(*ReadCryptoPolicyRequest)(nil),       // 3: caas.crypto.v1.ReadCryptoPolicyRequest
+	(*ReadCryptoPolicyResponse)(nil),      // 4: caas.crypto.v1.ReadCryptoPolicyResponse
+	(*DeleteCryptoPolicyRequest)(nil),     // 5: caas.crypto.v1.DeleteCryptoPolicyRequest
+	(*DeleteCryptoPolicyResponse)(nil),    // 6: caas.crypto.v1.DeleteCryptoPolicyResponse
+	(*UpdateCryptoPolicyRequest)(nil),     // 7: caas.crypto.v1.UpdateCryptoPolicyRequest
+	(*UpdateCryptoPolicyResponse)(nil),    // 8: caas.crypto.v1.UpdateCryptoPolicyResponse
+	(*ListCryptoPoliciesRequest)(nil),     // 9: caas.crypto.v1.ListCryptoPoliciesRequest
+	(*ListCryptoPoliciesResponse)(nil),    // 10: caas.crypto.v1.ListCryptoPoliciesResponse
+	(*PolicySummary)(nil),                 // 11: caas.crypto.v1.PolicySummary
+	(*EvaluatePolicyRequest)(nil),         // 12: caas.crypto.v1.EvaluatePolicyRequest
+	(*EvaluatePolicyResponse)(nil),        // 13: caas.crypto.v1.EvaluatePolicyResponse
+	(*PolicyDecisionDetails)(nil),         // 14: caas.crypto.v1.PolicyDecisionDetails
+	(*BatchEvaluatePolicyRequest)(nil),    // 15: caas.crypto.v1.BatchEvaluatePolicyRequest
+	(*BatchEvaluatePolicyResponse)(nil),   // 16: caas.crypto.v1.BatchEvaluatePolicyResponse
+	(*ListAllowedAlgorithmsRequest)(nil),  // 17: caas.crypto.v1.ListAllowedAlgorithmsRequest
+	(*ListAllowedAlgorithmsResponse)(nil), // 18: caas.crypto.v1.ListAllowedAlgorithmsResponse
+	nil,                                   // 19: caas.crypto.v1.EvaluatePolicyRequest.PropertiesEntry
+	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
+	(types.CryptoOperation)(0),            // 21: caas.crypto.v1.CryptoOperation
+	(*types.ScopeSpecification)(nil),      // 22: caas.crypto.v1.ScopeSpecification
 }
 var file_messages_policy_proto_depIdxs = []int32{
-	18, // 0: caas.crypto.v1.ReadCryptoPolicyResponse.created_at:type_name -> google.protobuf.Timestamp
-	18, // 1: caas.crypto.v1.ReadCryptoPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 0: caas.crypto.v1.ReadCryptoPolicyResponse.created_at:type_name -> google.protobuf.Timestamp
+	20, // 1: caas.crypto.v1.ReadCryptoPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
 	11, // 2: caas.crypto.v1.ListCryptoPoliciesResponse.policies:type_name -> caas.crypto.v1.PolicySummary
-	18, // 3: caas.crypto.v1.PolicySummary.created_at:type_name -> google.protobuf.Timestamp
-	18, // 4: caas.crypto.v1.PolicySummary.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 5: caas.crypto.v1.EvaluatePolicyRequest.operation:type_name -> caas.crypto.v1.CryptoOperation
-	20, // 6: caas.crypto.v1.EvaluatePolicyRequest.scope_spec:type_name -> caas.crypto.v1.ScopeSpecification
-	17, // 7: caas.crypto.v1.EvaluatePolicyRequest.properties:type_name -> caas.crypto.v1.EvaluatePolicyRequest.PropertiesEntry
+	20, // 3: caas.crypto.v1.PolicySummary.created_at:type_name -> google.protobuf.Timestamp
+	20, // 4: caas.crypto.v1.PolicySummary.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 5: caas.crypto.v1.EvaluatePolicyRequest.operation:type_name -> caas.crypto.v1.CryptoOperation
+	22, // 6: caas.crypto.v1.EvaluatePolicyRequest.scope_spec:type_name -> caas.crypto.v1.ScopeSpecification
+	19, // 7: caas.crypto.v1.EvaluatePolicyRequest.properties:type_name -> caas.crypto.v1.EvaluatePolicyRequest.PropertiesEntry
 	0,  // 8: caas.crypto.v1.EvaluatePolicyResponse.denial_reason:type_name -> caas.crypto.v1.PolicyDenialReason
 	14, // 9: caas.crypto.v1.EvaluatePolicyResponse.details:type_name -> caas.crypto.v1.PolicyDecisionDetails
-	18, // 10: caas.crypto.v1.PolicyDecisionDetails.evaluation_timestamp:type_name -> google.protobuf.Timestamp
-	19, // 11: caas.crypto.v1.PolicyDecisionDetails.allowed_operations:type_name -> caas.crypto.v1.CryptoOperation
-	20, // 12: caas.crypto.v1.PolicyDecisionDetails.allowed_scopes:type_name -> caas.crypto.v1.ScopeSpecification
+	20, // 10: caas.crypto.v1.PolicyDecisionDetails.evaluation_timestamp:type_name -> google.protobuf.Timestamp
+	21, // 11: caas.crypto.v1.PolicyDecisionDetails.allowed_operations:type_name -> caas.crypto.v1.CryptoOperation
+	22, // 12: caas.crypto.v1.PolicyDecisionDetails.allowed_scopes:type_name -> caas.crypto.v1.ScopeSpecification
 	12, // 13: caas.crypto.v1.BatchEvaluatePolicyRequest.evaluations:type_name -> caas.crypto.v1.EvaluatePolicyRequest
 	13, // 14: caas.crypto.v1.BatchEvaluatePolicyResponse.results:type_name -> caas.crypto.v1.EvaluatePolicyResponse
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	22, // 15: caas.crypto.v1.ListAllowedAlgorithmsRequest.filters:type_name -> caas.crypto.v1.ScopeSpecification
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_messages_policy_proto_init() }
@@ -1389,13 +1529,14 @@ func file_messages_policy_proto_init() {
 	if File_messages_policy_proto != nil {
 		return
 	}
+	file_messages_policy_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_messages_policy_proto_rawDesc), len(file_messages_policy_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

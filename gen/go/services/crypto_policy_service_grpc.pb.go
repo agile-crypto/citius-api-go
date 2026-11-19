@@ -22,13 +22,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CryptoPolicyService_CreateCryptoPolicy_FullMethodName  = "/caas.crypto.v1.CryptoPolicyService/CreateCryptoPolicy"
-	CryptoPolicyService_ReadCryptoPolicy_FullMethodName    = "/caas.crypto.v1.CryptoPolicyService/ReadCryptoPolicy"
-	CryptoPolicyService_DeleteCryptoPolicy_FullMethodName  = "/caas.crypto.v1.CryptoPolicyService/DeleteCryptoPolicy"
-	CryptoPolicyService_UpdateCryptoPolicy_FullMethodName  = "/caas.crypto.v1.CryptoPolicyService/UpdateCryptoPolicy"
-	CryptoPolicyService_ListCryptoPolicies_FullMethodName  = "/caas.crypto.v1.CryptoPolicyService/ListCryptoPolicies"
-	CryptoPolicyService_EvaluatePolicy_FullMethodName      = "/caas.crypto.v1.CryptoPolicyService/EvaluatePolicy"
-	CryptoPolicyService_BatchEvaluatePolicy_FullMethodName = "/caas.crypto.v1.CryptoPolicyService/BatchEvaluatePolicy"
+	CryptoPolicyService_CreateCryptoPolicy_FullMethodName    = "/caas.crypto.v1.CryptoPolicyService/CreateCryptoPolicy"
+	CryptoPolicyService_ReadCryptoPolicy_FullMethodName      = "/caas.crypto.v1.CryptoPolicyService/ReadCryptoPolicy"
+	CryptoPolicyService_DeleteCryptoPolicy_FullMethodName    = "/caas.crypto.v1.CryptoPolicyService/DeleteCryptoPolicy"
+	CryptoPolicyService_UpdateCryptoPolicy_FullMethodName    = "/caas.crypto.v1.CryptoPolicyService/UpdateCryptoPolicy"
+	CryptoPolicyService_ListCryptoPolicies_FullMethodName    = "/caas.crypto.v1.CryptoPolicyService/ListCryptoPolicies"
+	CryptoPolicyService_EvaluatePolicy_FullMethodName        = "/caas.crypto.v1.CryptoPolicyService/EvaluatePolicy"
+	CryptoPolicyService_BatchEvaluatePolicy_FullMethodName   = "/caas.crypto.v1.CryptoPolicyService/BatchEvaluatePolicy"
+	CryptoPolicyService_ListAllowedAlgorithms_FullMethodName = "/caas.crypto.v1.CryptoPolicyService/ListAllowedAlgorithms"
 )
 
 // CryptoPolicyServiceClient is the client API for CryptoPolicyService service.
@@ -50,6 +51,9 @@ type CryptoPolicyServiceClient interface {
 	// BatchEvaluatePolicy evaluates multiple policy decisions in one call.
 	// Useful for checking multiple operations/keys at once (e.g., UI initialization).
 	BatchEvaluatePolicy(ctx context.Context, in *messages.BatchEvaluatePolicyRequest, opts ...grpc.CallOption) (*messages.BatchEvaluatePolicyResponse, error)
+	// ListAllowedAlgorithms returns the list of algorithm templates allowed by a given policy, in order
+	// of preference. This is useful for clients that want to select an algorithm that is allowed by policy.
+	ListAllowedAlgorithms(ctx context.Context, in *messages.ListAllowedAlgorithmsRequest, opts ...grpc.CallOption) (*messages.ListAllowedAlgorithmsResponse, error)
 }
 
 type cryptoPolicyServiceClient struct {
@@ -130,6 +134,16 @@ func (c *cryptoPolicyServiceClient) BatchEvaluatePolicy(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *cryptoPolicyServiceClient) ListAllowedAlgorithms(ctx context.Context, in *messages.ListAllowedAlgorithmsRequest, opts ...grpc.CallOption) (*messages.ListAllowedAlgorithmsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(messages.ListAllowedAlgorithmsResponse)
+	err := c.cc.Invoke(ctx, CryptoPolicyService_ListAllowedAlgorithms_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CryptoPolicyServiceServer is the server API for CryptoPolicyService service.
 // All implementations must embed UnimplementedCryptoPolicyServiceServer
 // for forward compatibility.
@@ -149,6 +163,9 @@ type CryptoPolicyServiceServer interface {
 	// BatchEvaluatePolicy evaluates multiple policy decisions in one call.
 	// Useful for checking multiple operations/keys at once (e.g., UI initialization).
 	BatchEvaluatePolicy(context.Context, *messages.BatchEvaluatePolicyRequest) (*messages.BatchEvaluatePolicyResponse, error)
+	// ListAllowedAlgorithms returns the list of algorithm templates allowed by a given policy, in order
+	// of preference. This is useful for clients that want to select an algorithm that is allowed by policy.
+	ListAllowedAlgorithms(context.Context, *messages.ListAllowedAlgorithmsRequest) (*messages.ListAllowedAlgorithmsResponse, error)
 	mustEmbedUnimplementedCryptoPolicyServiceServer()
 }
 
@@ -179,6 +196,9 @@ func (UnimplementedCryptoPolicyServiceServer) EvaluatePolicy(context.Context, *m
 }
 func (UnimplementedCryptoPolicyServiceServer) BatchEvaluatePolicy(context.Context, *messages.BatchEvaluatePolicyRequest) (*messages.BatchEvaluatePolicyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchEvaluatePolicy not implemented")
+}
+func (UnimplementedCryptoPolicyServiceServer) ListAllowedAlgorithms(context.Context, *messages.ListAllowedAlgorithmsRequest) (*messages.ListAllowedAlgorithmsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAllowedAlgorithms not implemented")
 }
 func (UnimplementedCryptoPolicyServiceServer) mustEmbedUnimplementedCryptoPolicyServiceServer() {}
 func (UnimplementedCryptoPolicyServiceServer) testEmbeddedByValue()                             {}
@@ -327,6 +347,24 @@ func _CryptoPolicyService_BatchEvaluatePolicy_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CryptoPolicyService_ListAllowedAlgorithms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(messages.ListAllowedAlgorithmsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CryptoPolicyServiceServer).ListAllowedAlgorithms(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CryptoPolicyService_ListAllowedAlgorithms_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CryptoPolicyServiceServer).ListAllowedAlgorithms(ctx, req.(*messages.ListAllowedAlgorithmsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CryptoPolicyService_ServiceDesc is the grpc.ServiceDesc for CryptoPolicyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -361,6 +399,10 @@ var CryptoPolicyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchEvaluatePolicy",
 			Handler:    _CryptoPolicyService_BatchEvaluatePolicy_Handler,
+		},
+		{
+			MethodName: "ListAllowedAlgorithms",
+			Handler:    _CryptoPolicyService_ListAllowedAlgorithms_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

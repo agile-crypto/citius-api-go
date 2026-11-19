@@ -468,6 +468,30 @@ func local_request_CryptoService_SeedRandom_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
+func request_CryptoService_VerifyWithPublicKey_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq messages.VerifyWithPublicKeyRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.VerifyWithPublicKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_CryptoService_VerifyWithPublicKey_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq messages.VerifyWithPublicKeyRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.VerifyWithPublicKey(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterCryptoServiceHandlerServer registers the http handlers for service CryptoService to "mux".
 // UnaryRPC     :call CryptoServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -714,6 +738,26 @@ func RegisterCryptoServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 		forward_CryptoService_SeedRandom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_CryptoService_VerifyWithPublicKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/caas.crypto.v1.CryptoService/VerifyWithPublicKey", runtime.WithHTTPPathPattern("/v1/verify/publickey"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CryptoService_VerifyWithPublicKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CryptoService_VerifyWithPublicKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 
 	return nil
 }
@@ -958,35 +1002,54 @@ func RegisterCryptoServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 		forward_CryptoService_SeedRandom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_CryptoService_VerifyWithPublicKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/caas.crypto.v1.CryptoService/VerifyWithPublicKey", runtime.WithHTTPPathPattern("/v1/verify/publickey"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CryptoService_VerifyWithPublicKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CryptoService_VerifyWithPublicKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_CryptoService_Encrypt_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "encrypt", "key_name"}, ""))
-	pattern_CryptoService_Decrypt_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "decrypt", "key_name"}, ""))
-	pattern_CryptoService_Sign_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "sign", "key_name"}, ""))
-	pattern_CryptoService_Verify_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "verify", "key_name"}, ""))
-	pattern_CryptoService_DigestSign_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "sign", "digest", "key_name"}, ""))
-	pattern_CryptoService_DigestVerify_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "verify", "digest", "key_name"}, ""))
-	pattern_CryptoService_GenerateMAC_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "mac", "key_name", "generate"}, ""))
-	pattern_CryptoService_VerifyMAC_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "mac", "key_name", "verify"}, ""))
-	pattern_CryptoService_Digest_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "digest"}, ""))
-	pattern_CryptoService_Xof_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "xof"}, ""))
-	pattern_CryptoService_GenerateRandom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "random", "generate"}, ""))
-	pattern_CryptoService_SeedRandom_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "random", "seed"}, ""))
+	pattern_CryptoService_Encrypt_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "encrypt", "key_name"}, ""))
+	pattern_CryptoService_Decrypt_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "decrypt", "key_name"}, ""))
+	pattern_CryptoService_Sign_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "sign", "key_name"}, ""))
+	pattern_CryptoService_Verify_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "verify", "key_name"}, ""))
+	pattern_CryptoService_DigestSign_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "sign", "digest", "key_name"}, ""))
+	pattern_CryptoService_DigestVerify_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "verify", "digest", "key_name"}, ""))
+	pattern_CryptoService_GenerateMAC_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "mac", "key_name", "generate"}, ""))
+	pattern_CryptoService_VerifyMAC_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "mac", "key_name", "verify"}, ""))
+	pattern_CryptoService_Digest_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "digest"}, ""))
+	pattern_CryptoService_Xof_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "xof"}, ""))
+	pattern_CryptoService_GenerateRandom_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "random", "generate"}, ""))
+	pattern_CryptoService_SeedRandom_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "random", "seed"}, ""))
+	pattern_CryptoService_VerifyWithPublicKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "verify", "publickey"}, ""))
 )
 
 var (
-	forward_CryptoService_Encrypt_0        = runtime.ForwardResponseMessage
-	forward_CryptoService_Decrypt_0        = runtime.ForwardResponseMessage
-	forward_CryptoService_Sign_0           = runtime.ForwardResponseMessage
-	forward_CryptoService_Verify_0         = runtime.ForwardResponseMessage
-	forward_CryptoService_DigestSign_0     = runtime.ForwardResponseMessage
-	forward_CryptoService_DigestVerify_0   = runtime.ForwardResponseMessage
-	forward_CryptoService_GenerateMAC_0    = runtime.ForwardResponseMessage
-	forward_CryptoService_VerifyMAC_0      = runtime.ForwardResponseMessage
-	forward_CryptoService_Digest_0         = runtime.ForwardResponseMessage
-	forward_CryptoService_Xof_0            = runtime.ForwardResponseMessage
-	forward_CryptoService_GenerateRandom_0 = runtime.ForwardResponseMessage
-	forward_CryptoService_SeedRandom_0     = runtime.ForwardResponseMessage
+	forward_CryptoService_Encrypt_0             = runtime.ForwardResponseMessage
+	forward_CryptoService_Decrypt_0             = runtime.ForwardResponseMessage
+	forward_CryptoService_Sign_0                = runtime.ForwardResponseMessage
+	forward_CryptoService_Verify_0              = runtime.ForwardResponseMessage
+	forward_CryptoService_DigestSign_0          = runtime.ForwardResponseMessage
+	forward_CryptoService_DigestVerify_0        = runtime.ForwardResponseMessage
+	forward_CryptoService_GenerateMAC_0         = runtime.ForwardResponseMessage
+	forward_CryptoService_VerifyMAC_0           = runtime.ForwardResponseMessage
+	forward_CryptoService_Digest_0              = runtime.ForwardResponseMessage
+	forward_CryptoService_Xof_0                 = runtime.ForwardResponseMessage
+	forward_CryptoService_GenerateRandom_0      = runtime.ForwardResponseMessage
+	forward_CryptoService_SeedRandom_0          = runtime.ForwardResponseMessage
+	forward_CryptoService_VerifyWithPublicKey_0 = runtime.ForwardResponseMessage
 )

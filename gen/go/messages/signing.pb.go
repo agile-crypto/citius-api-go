@@ -2768,11 +2768,252 @@ func (x *VerifyMessageFinalResponse) GetSuccess() bool {
 	return false
 }
 
+type VerifyWithPublicKeyRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	PublicKey       []byte                 `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	PublicKeyFormat types.KeyFormat        `protobuf:"varint,2,opt,name=public_key_format,json=publicKeyFormat,proto3,enum=caas.crypto.v1.KeyFormat" json:"public_key_format,omitempty"`
+	Input           []byte                 `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
+	Signature       []byte                 `protobuf:"bytes,4,opt,name=signature,proto3" json:"signature,omitempty"`
+	// Additional operation parameters used to compute the signature
+	//
+	// Types that are valid to be assigned to ScopeParams:
+	//
+	//	*VerifyWithPublicKeyRequest_NoContext
+	//	*VerifyWithPublicKeyRequest_DomainContext
+	//	*VerifyWithPublicKeyRequest_VendorContext
+	ScopeParams           isVerifyWithPublicKeyRequest_ScopeParams `protobuf_oneof:"scope_params"`
+	TemplateId            string                                   `protobuf:"bytes,8,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`                                                                                                             // Template of the algorithm used to sign the input, required
+	PolicyName            string                                   `protobuf:"bytes,9,opt,name=policy_name,json=policyName,proto3" json:"policy_name,omitempty"`                                                                                                             // Name of the policy authorizing the operation, required.
+	ProviderId            *string                                  `protobuf:"bytes,10,opt,name=provider_id,json=providerId,proto3,oneof" json:"provider_id,omitempty"`                                                                                                      // Optional provider ID to use for verification. If not provided, the system will select a provider.
+	ProviderConfiguration map[string]string                        `protobuf:"bytes,11,rep,name=provider_configuration,json=providerConfiguration,proto3" json:"provider_configuration,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Optional provider configuration for the provider selected for verification. If not provided, the system will use the default configuration for the provider.
+	ProviderRequirements  *types.ProviderRequirements              `protobuf:"bytes,12,opt,name=provider_requirements,json=providerRequirements,proto3,oneof" json:"provider_requirements,omitempty"`                                                                        // Optional provider requirements for the provider selected for verification. If not provided, the system will use the default requirements for the provider.
+	// Optional: User-provided context for audit trail enrichment.
+	UserContext   map[string]string `protobuf:"bytes,20,rep,name=user_context,json=userContext,proto3" json:"user_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyWithPublicKeyRequest) Reset() {
+	*x = VerifyWithPublicKeyRequest{}
+	mi := &file_messages_signing_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyWithPublicKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyWithPublicKeyRequest) ProtoMessage() {}
+
+func (x *VerifyWithPublicKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_signing_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyWithPublicKeyRequest.ProtoReflect.Descriptor instead.
+func (*VerifyWithPublicKeyRequest) Descriptor() ([]byte, []int) {
+	return file_messages_signing_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *VerifyWithPublicKeyRequest) GetPublicKey() []byte {
+	if x != nil {
+		return x.PublicKey
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetPublicKeyFormat() types.KeyFormat {
+	if x != nil {
+		return x.PublicKeyFormat
+	}
+	return types.KeyFormat(0)
+}
+
+func (x *VerifyWithPublicKeyRequest) GetInput() []byte {
+	if x != nil {
+		return x.Input
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetSignature() []byte {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetScopeParams() isVerifyWithPublicKeyRequest_ScopeParams {
+	if x != nil {
+		return x.ScopeParams
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetNoContext() *types.NoParams {
+	if x != nil {
+		if x, ok := x.ScopeParams.(*VerifyWithPublicKeyRequest_NoContext); ok {
+			return x.NoContext
+		}
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetDomainContext() *types.SignatureDomainContext {
+	if x != nil {
+		if x, ok := x.ScopeParams.(*VerifyWithPublicKeyRequest_DomainContext); ok {
+			return x.DomainContext
+		}
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetVendorContext() *types.VendorSignatureContext {
+	if x != nil {
+		if x, ok := x.ScopeParams.(*VerifyWithPublicKeyRequest_VendorContext); ok {
+			return x.VendorContext
+		}
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetTemplateId() string {
+	if x != nil {
+		return x.TemplateId
+	}
+	return ""
+}
+
+func (x *VerifyWithPublicKeyRequest) GetPolicyName() string {
+	if x != nil {
+		return x.PolicyName
+	}
+	return ""
+}
+
+func (x *VerifyWithPublicKeyRequest) GetProviderId() string {
+	if x != nil && x.ProviderId != nil {
+		return *x.ProviderId
+	}
+	return ""
+}
+
+func (x *VerifyWithPublicKeyRequest) GetProviderConfiguration() map[string]string {
+	if x != nil {
+		return x.ProviderConfiguration
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetProviderRequirements() *types.ProviderRequirements {
+	if x != nil {
+		return x.ProviderRequirements
+	}
+	return nil
+}
+
+func (x *VerifyWithPublicKeyRequest) GetUserContext() map[string]string {
+	if x != nil {
+		return x.UserContext
+	}
+	return nil
+}
+
+type isVerifyWithPublicKeyRequest_ScopeParams interface {
+	isVerifyWithPublicKeyRequest_ScopeParams()
+}
+
+type VerifyWithPublicKeyRequest_NoContext struct {
+	NoContext *types.NoParams `protobuf:"bytes,5,opt,name=no_context,json=noContext,proto3,oneof"` // Classical signatures
+}
+
+type VerifyWithPublicKeyRequest_DomainContext struct {
+	DomainContext *types.SignatureDomainContext `protobuf:"bytes,6,opt,name=domain_context,json=domainContext,proto3,oneof"` // Context-bearing signatures
+}
+
+type VerifyWithPublicKeyRequest_VendorContext struct {
+	VendorContext *types.VendorSignatureContext `protobuf:"bytes,7,opt,name=vendor_context,json=vendorContext,proto3,oneof"` // Vendor/custom scope
+}
+
+func (*VerifyWithPublicKeyRequest_NoContext) isVerifyWithPublicKeyRequest_ScopeParams() {}
+
+func (*VerifyWithPublicKeyRequest_DomainContext) isVerifyWithPublicKeyRequest_ScopeParams() {}
+
+func (*VerifyWithPublicKeyRequest_VendorContext) isVerifyWithPublicKeyRequest_ScopeParams() {}
+
+type VerifyWithPublicKeyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+	TemplateId    string                 `protobuf:"bytes,2,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	ProviderId    string                 `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyWithPublicKeyResponse) Reset() {
+	*x = VerifyWithPublicKeyResponse{}
+	mi := &file_messages_signing_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyWithPublicKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyWithPublicKeyResponse) ProtoMessage() {}
+
+func (x *VerifyWithPublicKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_signing_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyWithPublicKeyResponse.ProtoReflect.Descriptor instead.
+func (*VerifyWithPublicKeyResponse) Descriptor() ([]byte, []int) {
+	return file_messages_signing_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *VerifyWithPublicKeyResponse) GetValid() bool {
+	if x != nil {
+		return x.Valid
+	}
+	return false
+}
+
+func (x *VerifyWithPublicKeyResponse) GetTemplateId() string {
+	if x != nil {
+		return x.TemplateId
+	}
+	return ""
+}
+
+func (x *VerifyWithPublicKeyResponse) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
+}
+
 var File_messages_signing_proto protoreflect.FileDescriptor
 
 const file_messages_signing_proto_rawDesc = "" +
 	"\n" +
-	"\x16messages/signing.proto\x12\x0ecaas.crypto.v1\x1a\x17messages/metadata.proto\x1a\x1ctypes/algorithm_params.proto\x1a\x12types/common.proto\x1a\x1ctypes/operation_params.proto\x1a\x1bbuf/validate/validate.proto\"\xcf\x03\n" +
+	"\x16messages/signing.proto\x12\x0ecaas.crypto.v1\x1a\x17messages/metadata.proto\x1a\x1ctypes/algorithm_params.proto\x1a\x12types/common.proto\x1a\x1ctypes/operation_params.proto\x1a\x1atypes/implementation.proto\x1a\x15types/templates.proto\x1a\x1bbuf/validate/validate.proto\"\xcf\x03\n" +
 	"\vSignRequest\x12%\n" +
 	"\bkey_name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\akeyName\x12\x14\n" +
@@ -3002,7 +3243,42 @@ const file_messages_signing_proto_rawDesc = "" +
 	"\foperation_id\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\voperationId\"6\n" +
 	"\x1aVerifyMessageFinalResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccessB@Z>github.com/agile-crypto/citius-api-go/gen/go/messages;messagesb\x06proto3"
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x84\b\n" +
+	"\x1aVerifyWithPublicKeyRequest\x12\x1d\n" +
+	"\n" +
+	"public_key\x18\x01 \x01(\fR\tpublicKey\x12E\n" +
+	"\x11public_key_format\x18\x02 \x01(\x0e2\x19.caas.crypto.v1.KeyFormatR\x0fpublicKeyFormat\x12\x14\n" +
+	"\x05input\x18\x03 \x01(\fR\x05input\x12\x1c\n" +
+	"\tsignature\x18\x04 \x01(\fR\tsignature\x129\n" +
+	"\n" +
+	"no_context\x18\x05 \x01(\v2\x18.caas.crypto.v1.NoParamsH\x00R\tnoContext\x12O\n" +
+	"\x0edomain_context\x18\x06 \x01(\v2&.caas.crypto.v1.SignatureDomainContextH\x00R\rdomainContext\x12O\n" +
+	"\x0evendor_context\x18\a \x01(\v2&.caas.crypto.v1.VendorSignatureContextH\x00R\rvendorContext\x12\x1f\n" +
+	"\vtemplate_id\x18\b \x01(\tR\n" +
+	"templateId\x12\x1f\n" +
+	"\vpolicy_name\x18\t \x01(\tR\n" +
+	"policyName\x12$\n" +
+	"\vprovider_id\x18\n" +
+	" \x01(\tH\x01R\n" +
+	"providerId\x88\x01\x01\x12|\n" +
+	"\x16provider_configuration\x18\v \x03(\v2E.caas.crypto.v1.VerifyWithPublicKeyRequest.ProviderConfigurationEntryR\x15providerConfiguration\x12^\n" +
+	"\x15provider_requirements\x18\f \x01(\v2$.caas.crypto.v1.ProviderRequirementsH\x02R\x14providerRequirements\x88\x01\x01\x12^\n" +
+	"\fuser_context\x18\x14 \x03(\v2;.caas.crypto.v1.VerifyWithPublicKeyRequest.UserContextEntryR\vuserContext\x1aH\n" +
+	"\x1aProviderConfigurationEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
+	"\x10UserContextEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
+	"\fscope_params\x12\x05\xbaH\x02\b\x01B\x0e\n" +
+	"\f_provider_idB\x18\n" +
+	"\x16_provider_requirements\"u\n" +
+	"\x1bVerifyWithPublicKeyResponse\x12\x14\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x1f\n" +
+	"\vtemplate_id\x18\x02 \x01(\tR\n" +
+	"templateId\x12\x1f\n" +
+	"\vprovider_id\x18\x03 \x01(\tR\n" +
+	"providerIdB@Z>github.com/agile-crypto/citius-api-go/gen/go/messages;messagesb\x06proto3"
 
 var (
 	file_messages_signing_proto_rawDescOnce sync.Once
@@ -3016,7 +3292,7 @@ func file_messages_signing_proto_rawDescGZIP() []byte {
 	return file_messages_signing_proto_rawDescData
 }
 
-var file_messages_signing_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_messages_signing_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
 var file_messages_signing_proto_goTypes = []any{
 	(*SignRequest)(nil),                  // 0: caas.crypto.v1.SignRequest
 	(*SignResponse)(nil),                 // 1: caas.crypto.v1.SignResponse
@@ -3058,77 +3334,90 @@ var file_messages_signing_proto_goTypes = []any{
 	(*VerifyMessageNextResponse)(nil),    // 37: caas.crypto.v1.VerifyMessageNextResponse
 	(*VerifyMessageFinalRequest)(nil),    // 38: caas.crypto.v1.VerifyMessageFinalRequest
 	(*VerifyMessageFinalResponse)(nil),   // 39: caas.crypto.v1.VerifyMessageFinalResponse
-	nil,                                  // 40: caas.crypto.v1.SignRequest.UserContextEntry
-	nil,                                  // 41: caas.crypto.v1.VerifyRequest.UserContextEntry
-	nil,                                  // 42: caas.crypto.v1.DigestSignRequest.UserContextEntry
-	nil,                                  // 43: caas.crypto.v1.DigestVerifyRequest.UserContextEntry
-	nil,                                  // 44: caas.crypto.v1.SignInitRequest.UserContextEntry
-	nil,                                  // 45: caas.crypto.v1.VerifyInitRequest.UserContextEntry
-	nil,                                  // 46: caas.crypto.v1.SignMessageInitRequest.UserContextEntry
-	nil,                                  // 47: caas.crypto.v1.SignMessageRequest.UserContextEntry
-	nil,                                  // 48: caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
-	nil,                                  // 49: caas.crypto.v1.VerifyMessageRequest.UserContextEntry
-	(*types.NoParams)(nil),               // 50: caas.crypto.v1.NoParams
-	(*types.SignatureDomainContext)(nil), // 51: caas.crypto.v1.SignatureDomainContext
-	(*types.VendorSignatureContext)(nil), // 52: caas.crypto.v1.VendorSignatureContext
-	(*OperationMetadata)(nil),            // 53: caas.crypto.v1.OperationMetadata
-	(types.HashAlgorithm)(0),             // 54: caas.crypto.v1.HashAlgorithm
+	(*VerifyWithPublicKeyRequest)(nil),   // 40: caas.crypto.v1.VerifyWithPublicKeyRequest
+	(*VerifyWithPublicKeyResponse)(nil),  // 41: caas.crypto.v1.VerifyWithPublicKeyResponse
+	nil,                                  // 42: caas.crypto.v1.SignRequest.UserContextEntry
+	nil,                                  // 43: caas.crypto.v1.VerifyRequest.UserContextEntry
+	nil,                                  // 44: caas.crypto.v1.DigestSignRequest.UserContextEntry
+	nil,                                  // 45: caas.crypto.v1.DigestVerifyRequest.UserContextEntry
+	nil,                                  // 46: caas.crypto.v1.SignInitRequest.UserContextEntry
+	nil,                                  // 47: caas.crypto.v1.VerifyInitRequest.UserContextEntry
+	nil,                                  // 48: caas.crypto.v1.SignMessageInitRequest.UserContextEntry
+	nil,                                  // 49: caas.crypto.v1.SignMessageRequest.UserContextEntry
+	nil,                                  // 50: caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
+	nil,                                  // 51: caas.crypto.v1.VerifyMessageRequest.UserContextEntry
+	nil,                                  // 52: caas.crypto.v1.VerifyWithPublicKeyRequest.ProviderConfigurationEntry
+	nil,                                  // 53: caas.crypto.v1.VerifyWithPublicKeyRequest.UserContextEntry
+	(*types.NoParams)(nil),               // 54: caas.crypto.v1.NoParams
+	(*types.SignatureDomainContext)(nil), // 55: caas.crypto.v1.SignatureDomainContext
+	(*types.VendorSignatureContext)(nil), // 56: caas.crypto.v1.VendorSignatureContext
+	(*OperationMetadata)(nil),            // 57: caas.crypto.v1.OperationMetadata
+	(types.HashAlgorithm)(0),             // 58: caas.crypto.v1.HashAlgorithm
+	(types.KeyFormat)(0),                 // 59: caas.crypto.v1.KeyFormat
+	(*types.ProviderRequirements)(nil),   // 60: caas.crypto.v1.ProviderRequirements
 }
 var file_messages_signing_proto_depIdxs = []int32{
-	50, // 0: caas.crypto.v1.SignRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 1: caas.crypto.v1.SignRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 2: caas.crypto.v1.SignRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	40, // 3: caas.crypto.v1.SignRequest.user_context:type_name -> caas.crypto.v1.SignRequest.UserContextEntry
-	53, // 4: caas.crypto.v1.SignResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 5: caas.crypto.v1.VerifyRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 6: caas.crypto.v1.VerifyRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 7: caas.crypto.v1.VerifyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 8: caas.crypto.v1.VerifyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	41, // 9: caas.crypto.v1.VerifyRequest.user_context:type_name -> caas.crypto.v1.VerifyRequest.UserContextEntry
-	53, // 10: caas.crypto.v1.VerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 11: caas.crypto.v1.DigestSignRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 12: caas.crypto.v1.DigestSignRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 13: caas.crypto.v1.DigestSignRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	54, // 14: caas.crypto.v1.DigestSignRequest.hash_algorithm:type_name -> caas.crypto.v1.HashAlgorithm
-	42, // 15: caas.crypto.v1.DigestSignRequest.user_context:type_name -> caas.crypto.v1.DigestSignRequest.UserContextEntry
-	53, // 16: caas.crypto.v1.DigestSignResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 17: caas.crypto.v1.DigestVerifyRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 18: caas.crypto.v1.DigestVerifyRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 19: caas.crypto.v1.DigestVerifyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 20: caas.crypto.v1.DigestVerifyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	43, // 21: caas.crypto.v1.DigestVerifyRequest.user_context:type_name -> caas.crypto.v1.DigestVerifyRequest.UserContextEntry
-	53, // 22: caas.crypto.v1.DigestVerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 23: caas.crypto.v1.SignInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 24: caas.crypto.v1.SignInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 25: caas.crypto.v1.SignInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	44, // 26: caas.crypto.v1.SignInitRequest.user_context:type_name -> caas.crypto.v1.SignInitRequest.UserContextEntry
-	53, // 27: caas.crypto.v1.SignFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 28: caas.crypto.v1.VerifyInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 29: caas.crypto.v1.VerifyInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 30: caas.crypto.v1.VerifyInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	53, // 31: caas.crypto.v1.VerifyInitRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	45, // 32: caas.crypto.v1.VerifyInitRequest.user_context:type_name -> caas.crypto.v1.VerifyInitRequest.UserContextEntry
-	53, // 33: caas.crypto.v1.VerifyFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 34: caas.crypto.v1.SignMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 35: caas.crypto.v1.SignMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 36: caas.crypto.v1.SignMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	46, // 37: caas.crypto.v1.SignMessageInitRequest.user_context:type_name -> caas.crypto.v1.SignMessageInitRequest.UserContextEntry
-	47, // 38: caas.crypto.v1.SignMessageRequest.user_context:type_name -> caas.crypto.v1.SignMessageRequest.UserContextEntry
-	53, // 39: caas.crypto.v1.SignMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 40: caas.crypto.v1.SignMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	50, // 41: caas.crypto.v1.VerifyMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
-	51, // 42: caas.crypto.v1.VerifyMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
-	52, // 43: caas.crypto.v1.VerifyMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
-	48, // 44: caas.crypto.v1.VerifyMessageInitRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
-	53, // 45: caas.crypto.v1.VerifyMessageRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	49, // 46: caas.crypto.v1.VerifyMessageRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageRequest.UserContextEntry
-	53, // 47: caas.crypto.v1.VerifyMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	53, // 48: caas.crypto.v1.VerifyMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
-	49, // [49:49] is the sub-list for method output_type
-	49, // [49:49] is the sub-list for method input_type
-	49, // [49:49] is the sub-list for extension type_name
-	49, // [49:49] is the sub-list for extension extendee
-	0,  // [0:49] is the sub-list for field type_name
+	54, // 0: caas.crypto.v1.SignRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 1: caas.crypto.v1.SignRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 2: caas.crypto.v1.SignRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	42, // 3: caas.crypto.v1.SignRequest.user_context:type_name -> caas.crypto.v1.SignRequest.UserContextEntry
+	57, // 4: caas.crypto.v1.SignResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	57, // 5: caas.crypto.v1.VerifyRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 6: caas.crypto.v1.VerifyRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 7: caas.crypto.v1.VerifyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 8: caas.crypto.v1.VerifyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	43, // 9: caas.crypto.v1.VerifyRequest.user_context:type_name -> caas.crypto.v1.VerifyRequest.UserContextEntry
+	57, // 10: caas.crypto.v1.VerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 11: caas.crypto.v1.DigestSignRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 12: caas.crypto.v1.DigestSignRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 13: caas.crypto.v1.DigestSignRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	58, // 14: caas.crypto.v1.DigestSignRequest.hash_algorithm:type_name -> caas.crypto.v1.HashAlgorithm
+	44, // 15: caas.crypto.v1.DigestSignRequest.user_context:type_name -> caas.crypto.v1.DigestSignRequest.UserContextEntry
+	57, // 16: caas.crypto.v1.DigestSignResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	57, // 17: caas.crypto.v1.DigestVerifyRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 18: caas.crypto.v1.DigestVerifyRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 19: caas.crypto.v1.DigestVerifyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 20: caas.crypto.v1.DigestVerifyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	45, // 21: caas.crypto.v1.DigestVerifyRequest.user_context:type_name -> caas.crypto.v1.DigestVerifyRequest.UserContextEntry
+	57, // 22: caas.crypto.v1.DigestVerifyResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 23: caas.crypto.v1.SignInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 24: caas.crypto.v1.SignInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 25: caas.crypto.v1.SignInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	46, // 26: caas.crypto.v1.SignInitRequest.user_context:type_name -> caas.crypto.v1.SignInitRequest.UserContextEntry
+	57, // 27: caas.crypto.v1.SignFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 28: caas.crypto.v1.VerifyInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 29: caas.crypto.v1.VerifyInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 30: caas.crypto.v1.VerifyInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	57, // 31: caas.crypto.v1.VerifyInitRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	47, // 32: caas.crypto.v1.VerifyInitRequest.user_context:type_name -> caas.crypto.v1.VerifyInitRequest.UserContextEntry
+	57, // 33: caas.crypto.v1.VerifyFinalResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 34: caas.crypto.v1.SignMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 35: caas.crypto.v1.SignMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 36: caas.crypto.v1.SignMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	48, // 37: caas.crypto.v1.SignMessageInitRequest.user_context:type_name -> caas.crypto.v1.SignMessageInitRequest.UserContextEntry
+	49, // 38: caas.crypto.v1.SignMessageRequest.user_context:type_name -> caas.crypto.v1.SignMessageRequest.UserContextEntry
+	57, // 39: caas.crypto.v1.SignMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	57, // 40: caas.crypto.v1.SignMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	54, // 41: caas.crypto.v1.VerifyMessageInitRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 42: caas.crypto.v1.VerifyMessageInitRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 43: caas.crypto.v1.VerifyMessageInitRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	50, // 44: caas.crypto.v1.VerifyMessageInitRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageInitRequest.UserContextEntry
+	57, // 45: caas.crypto.v1.VerifyMessageRequest.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	51, // 46: caas.crypto.v1.VerifyMessageRequest.user_context:type_name -> caas.crypto.v1.VerifyMessageRequest.UserContextEntry
+	57, // 47: caas.crypto.v1.VerifyMessageResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	57, // 48: caas.crypto.v1.VerifyMessageNextResponse.metadata:type_name -> caas.crypto.v1.OperationMetadata
+	59, // 49: caas.crypto.v1.VerifyWithPublicKeyRequest.public_key_format:type_name -> caas.crypto.v1.KeyFormat
+	54, // 50: caas.crypto.v1.VerifyWithPublicKeyRequest.no_context:type_name -> caas.crypto.v1.NoParams
+	55, // 51: caas.crypto.v1.VerifyWithPublicKeyRequest.domain_context:type_name -> caas.crypto.v1.SignatureDomainContext
+	56, // 52: caas.crypto.v1.VerifyWithPublicKeyRequest.vendor_context:type_name -> caas.crypto.v1.VendorSignatureContext
+	52, // 53: caas.crypto.v1.VerifyWithPublicKeyRequest.provider_configuration:type_name -> caas.crypto.v1.VerifyWithPublicKeyRequest.ProviderConfigurationEntry
+	60, // 54: caas.crypto.v1.VerifyWithPublicKeyRequest.provider_requirements:type_name -> caas.crypto.v1.ProviderRequirements
+	53, // 55: caas.crypto.v1.VerifyWithPublicKeyRequest.user_context:type_name -> caas.crypto.v1.VerifyWithPublicKeyRequest.UserContextEntry
+	56, // [56:56] is the sub-list for method output_type
+	56, // [56:56] is the sub-list for method input_type
+	56, // [56:56] is the sub-list for extension type_name
+	56, // [56:56] is the sub-list for extension extendee
+	0,  // [0:56] is the sub-list for field type_name
 }
 
 func init() { file_messages_signing_proto_init() }
@@ -3177,13 +3466,18 @@ func file_messages_signing_proto_init() {
 		(*VerifyMessageInitRequest_DomainContext)(nil),
 		(*VerifyMessageInitRequest_VendorContext)(nil),
 	}
+	file_messages_signing_proto_msgTypes[40].OneofWrappers = []any{
+		(*VerifyWithPublicKeyRequest_NoContext)(nil),
+		(*VerifyWithPublicKeyRequest_DomainContext)(nil),
+		(*VerifyWithPublicKeyRequest_VendorContext)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_messages_signing_proto_rawDesc), len(file_messages_signing_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   50,
+			NumMessages:   54,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
